@@ -7,14 +7,13 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.codemc.worldguardwrapper.WorldGuardWrapper;
 import org.codemc.worldguardwrapper.region.IWrappedRegion;
-import ru.leymooo.antirelog.Antirelog;
+import ru.leymooo.antirelog.AntiRelog;
 import ru.leymooo.antirelog.config.PvpConfigManager;
 import ru.leymooo.antirelog.event.PvpPreStartEvent;
 import ru.leymooo.antirelog.event.PvpPreStartEvent.PvPStatus;
 import ru.leymooo.antirelog.event.PvpStartedEvent;
 import ru.leymooo.antirelog.event.PvpStoppedEvent;
 import ru.leymooo.antirelog.event.PvpTimeUpdateEvent;
-import ru.leymooo.antirelog.util.ActionBar;
 import ru.leymooo.antirelog.util.CommandMapUtils;
 import ru.leymooo.antirelog.util.Utils;
 
@@ -23,7 +22,7 @@ import java.util.*;
 public class PvPManager {
 
     private final PvpConfigManager configManager;
-    private final Antirelog plugin;
+    private final AntiRelog plugin;
     private final Map<Player, Integer> pvpMap = new HashMap<>();
     private final Map<Player, Integer> silentPvpMap = new HashMap<>();
 
@@ -34,7 +33,7 @@ public class PvPManager {
 
     private final Set<String> whiteListedCommands = new HashSet<>();
 
-    public PvPManager(PvpConfigManager configManager, Antirelog plugin) {
+    public PvPManager(PvpConfigManager configManager, AntiRelog plugin) {
         this.configManager = configManager;
         this.plugin = plugin;
         this.powerUpsManager = new PowerUpsManager(configManager);
@@ -294,7 +293,7 @@ public class PvPManager {
     }
 
     private void sendActionBar(Player player, String message) {
-        ActionBar.sendAction(player, message);
+        player.sendActionBar(message);
     }
 
     public boolean isPvPModeEnabled() {

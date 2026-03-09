@@ -1,6 +1,17 @@
 name: AntiRelog
+main: ru.leymooo.antirelog.AntiRelog
+
 version: '${version}'
-main: ru.loper.antirelog.AntiRelog
-api-version: '1.21'
-depend: [SunCore]
+api-version: '1.16'
+
 website: t.me/bySunDev
+
+depend: [ SunCore ]
+softdepend:
+  - PlaceholderAPI
+  - Essentials
+  - WorldGuard
+  - CMI
+  - TAB
+
+authors: [ Leymooo, Loper ]

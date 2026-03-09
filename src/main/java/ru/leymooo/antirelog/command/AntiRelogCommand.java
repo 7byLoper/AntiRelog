@@ -1,21 +1,33 @@
 package ru.leymooo.antirelog.command;
 
-import org.bukkit.permissions.Permission;
-import ru.leymooo.antirelog.Antirelog;
-import ru.leymooo.antirelog.command.impl.ReloadSubCommand;
-import ru.leymooo.antirelog.config.PvpConfigManager;
-import ru.loper.suncore.api.command.AdvancedSmartCommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
+import ru.leymooo.antirelog.AntiRelog;
+import ru.leymooo.antirelog.command.subcommands.ReloadSubCommand;
+import ru.loper.suncore.api.command.executor.BaseCommandExecutor;
+import ru.loper.suncore.api.command.register.CommandRegister;
 
-public class AntirelogCommand extends AdvancedSmartCommandExecutor {
-    private final PvpConfigManager configManager;
+@CommandRegister(name = "antirelog", permission = "antirelog.command.use")
+public class AntiRelogCommand extends BaseCommandExecutor {
+    private final AntiRelog plugin;
 
-    public AntirelogCommand(Antirelog plugin) {
-        configManager = plugin.getConfigManager();
-        addSubCommand(new ReloadSubCommand(plugin, plugin.getConfigManager()), new Permission("antirelog.command.reload"), "reload");
+    public AntiRelogCommand(AntiRelog plugin) {
+        super(plugin);
+        this.plugin = plugin;
     }
 
     @Override
-    public String getDontPermissionMessage() {
-        return configManager.getMessages().getNoPermissions();
+    public String getNoPermissionMessage() {
+        return plugin.getConfigManager().getMessages().getNoPermissions();
+    }
+
+    @Override
+    public void registerWrappers() {
+        addSubCommand(new ReloadSubCommand(plugin.getConfigManager()));
+    }
+
+    @Override
+    public void handleNoArguments(@NotNull CommandSender commandSender) {
+
     }
 }

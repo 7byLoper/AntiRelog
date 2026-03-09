@@ -5,9 +5,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import ru.leymooo.antirelog.api.config.OpponentsConfig;
 import ru.leymooo.antirelog.api.config.ScoreboardConfig;
+import ru.loper.suncore.api.colorize.StringColorize;
 import ru.loper.suncore.api.config.ConfigManager;
 import ru.loper.suncore.api.config.CustomConfig;
-import ru.loper.suncore.utils.Colorize;
 
 @Getter
 public class PvpConfigManager extends ConfigManager {
@@ -39,16 +39,16 @@ public class PvpConfigManager extends ConfigManager {
 
         FileConfiguration sc = getCustomConfig("scoreboard.yml").getConfig();
         this.scoreboardConfig = new ScoreboardConfig(
-                Colorize.parse(sc.getString("scoreboard.title", "")),
-                Colorize.parse(sc.getStringList("scoreboard.lines")),
+                StringColorize.parse(sc.getString("scoreboard.title", "")),
+                StringColorize.parse(sc.getStringList("scoreboard.lines")),
                 sc.getIntegerList("scoreboard.removingLinesIfNoEnemies")
         );
 
         this.opponentsConfig = new OpponentsConfig(
                 sc.getInt("opponents.max", 10),
-                Colorize.parse(sc.getString("opponents.one", "")),
-                Colorize.parse(sc.getString("opponents.next", "")),
-                Colorize.parse(sc.getString("opponents.empty", ""))
+                StringColorize.parse(sc.getString("opponents.one", "")),
+                StringColorize.parse(sc.getString("opponents.next", "")),
+                StringColorize.parse(sc.getString("opponents.empty", ""))
         );
     }
 }

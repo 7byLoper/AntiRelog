@@ -8,7 +8,7 @@ import me.neznamy.tab.api.scoreboard.Scoreboard;
 import me.neznamy.tab.api.scoreboard.ScoreboardManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import ru.leymooo.antirelog.Antirelog;
+import ru.leymooo.antirelog.AntiRelog;
 import ru.leymooo.antirelog.api.config.OpponentsConfig;
 import ru.leymooo.antirelog.api.config.ScoreboardConfig;
 import ru.leymooo.antirelog.manager.PvPManager;
@@ -35,7 +35,7 @@ public class Board {
         this.player = player;
         this.tabPlayer = Objects.requireNonNull(TabAPI.getInstance().getPlayer(player.getUniqueId()));
 
-        Antirelog antirelog = Antirelog.getPlugin(Antirelog.class);
+        AntiRelog antirelog = AntiRelog.getPlugin(AntiRelog.class);
         scoreboardConfig = antirelog.getConfigManager().getScoreboardConfig();
         opponentsConfig = antirelog.getConfigManager().getOpponentsConfig();
         pvpManager = antirelog.getPvpManager();
@@ -48,7 +48,7 @@ public class Board {
 
         enemies.add(startEnemy);
         final Scoreboard scoreboard = scoreboardManager.createScoreboard(
-                player.getName(), scoreboardConfig.getTitle(), buildEnemies(time)
+                player.getName(), scoreboardConfig.title(), buildEnemies(time)
         );
         scoreboardManager.showScoreboard(tabPlayer, scoreboard);
     }
@@ -56,7 +56,7 @@ public class Board {
     public void updateScoreboard(int time) {
         final Scoreboard scoreboard = scoreboardManager.createScoreboard(
                 player.getName(),
-                scoreboardConfig.getTitle(),
+                scoreboardConfig.title(),
                 buildEnemies(time)
         );
         try {
@@ -66,7 +66,7 @@ public class Board {
     }
 
     public void resetScoreboard() {
-        Bukkit.getScheduler().runTaskLater(Antirelog.getPlugin(Antirelog.class),
+        Bukkit.getScheduler().runTaskLater(AntiRelog.getPlugin(AntiRelog.class),
                 () -> scoreboardManager.resetScoreboard(tabPlayer), 10L);
     }
 
@@ -75,7 +75,7 @@ public class Board {
     }
 
     public @NonNull List<String> buildEnemies(final int time) {
-        List<String> lines = scoreboardConfig.getLines().stream()
+        List<String> lines = scoreboardConfig.lines().stream()
                 .map(line -> line.replace("{time}", String.valueOf(time))
                         .replace("{player}", player.getName())
                         .replace("{ping}", String.valueOf(player.getPing())))
@@ -87,9 +87,9 @@ public class Board {
         }
 
         if (enemies.isEmpty()) {
-            List<Integer> indexes = scoreboardConfig.getRemovingLinesIfNoOpponents();
+            List<Integer> indexes = scoreboardConfig.removingLinesIfNoOpponents();
             if (indexes.isEmpty()) {
-                lines.set(enemiesIndex, opponentsConfig.getEmpty());
+                lines.set(enemiesIndex, opponentsConfig.empty());
                 return lines;
             }
 
@@ -116,8 +116,8 @@ public class Board {
         try {
             final List<String> enemiesList = new ArrayList<>(this.enemies);
             final List<String> enemiesLines = new ArrayList<>();
-            final String oneFormat = opponentsConfig.getOneLine();
-            final String nextFormat = opponentsConfig.getNextLine();
+            final String oneFormat = opponentsConfig.oneLine();
+            final String nextFormat = opponentsConfig.nextLine();
 
             enemiesList.removeIf(Objects::isNull);
 

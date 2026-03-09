@@ -129,11 +129,9 @@ public class CooldownListener implements Listener {
             return false;
         }
 
-        if (!itemStack.hasItemMeta() || !(itemStack.getItemMeta() instanceof PotionMeta)) {
+        if (!itemStack.hasItemMeta() || !(itemStack.getItemMeta() instanceof PotionMeta potionMeta)) {
             return false;
         }
-
-        PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
 
         boolean hasEffects = false;
 
@@ -179,20 +177,17 @@ public class CooldownListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPerlLaunch(ProjectileLaunchEvent event) {
-        if (!(event.getEntity().getShooter() instanceof Player)) {
+        if (!(event.getEntity().getShooter() instanceof Player player)) {
             return;
         }
 
-        if (!(event.getEntity() instanceof ThrowableProjectile)) {
+        if (!(event.getEntity() instanceof ThrowableProjectile entity)) {
             return;
         }
 
-        Player player = (Player) event.getEntity().getShooter();
         if (!pvpManager.isInPvP(player)) {
             return;
         }
-
-        ThrowableProjectile entity = (ThrowableProjectile) event.getEntity();
 
         handleCooldown(
                 event,
@@ -208,11 +203,9 @@ public class CooldownListener implements Listener {
         Player player = event.getPlayer();
 
         ItemStack itemStack = player.getInventory().getItem(event.getNewSlot());
-        if (itemStack == null || !itemStack.hasItemMeta() || !(itemStack.getItemMeta() instanceof PotionMeta)) {
+        if (itemStack == null || !itemStack.hasItemMeta() || !(itemStack.getItemMeta() instanceof PotionMeta potionMeta)) {
             return;
         }
-
-        PotionMeta potionMeta = (PotionMeta) itemStack.getItemMeta();
 
         List<PotionEffectType> potionEffects = PotionUtils.getPotionEffects(potionMeta);
         if (potionEffects.isEmpty()) {

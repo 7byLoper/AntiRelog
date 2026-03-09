@@ -6,7 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.codemc.worldguardwrapper.WorldGuardWrapper;
 import ru.leymooo.antirelog.boards.BoardManager;
-import ru.leymooo.antirelog.command.AntirelogCommand;
+import ru.leymooo.antirelog.command.AntiRelogCommand;
 import ru.leymooo.antirelog.config.PvpConfigManager;
 import ru.leymooo.antirelog.config.Settings;
 import ru.leymooo.antirelog.listeners.*;
@@ -18,12 +18,10 @@ import ru.leymooo.antirelog.placeholder.AntirelogPlaceholder;
 import ru.leymooo.antirelog.util.VersionUtils;
 import ru.leymooo.antirelog.wg.AntiExitFlag;
 
-import java.util.Optional;
-
 import static ru.leymooo.antirelog.wg.AntiExitFlag.FACTORY;
 
 @Getter
-public class Antirelog extends JavaPlugin {
+public class AntiRelog extends JavaPlugin {
     private PvPManager pvpManager;
     private CooldownManager cooldownManager;
 
@@ -66,8 +64,8 @@ public class Antirelog extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(new ScoreboardListener(this, scoreboardManager), this);
         }
 
-        Optional.ofNullable(getCommand("antirelog"))
-                .ifPresent(command -> command.setExecutor(new AntirelogCommand(this)));
+        new AntiRelogCommand(this)
+                .registerWrappers();
     }
 
     @Override

@@ -4,22 +4,17 @@ import com.Zrips.CMI.CMI;
 import com.Zrips.CMI.Containers.CMIUser;
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.User;
-import de.myzelyam.api.vanish.VanishAPI;
-import me.libraryaddict.disguise.DisguiseAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
-import org.kitteh.vanish.VanishPlugin;
 import ru.leymooo.antirelog.config.PvpConfigManager;
-import ru.loper.suncore.utils.Colorize;
+import ru.loper.suncore.api.colorize.StringColorize;
 
 public class PowerUpsManager {
-
     private final PvpConfigManager configManager;
 
-    private boolean vanishAPI, libsDisguises, cmi;
-    private VanishPlugin vanishNoPacket;
+    private boolean cmi;
     private Essentials essentials;
 
     public PowerUpsManager(PvpConfigManager configManager) {
@@ -57,20 +52,6 @@ public class PowerUpsManager {
             disabled = true;
         }
 
-        if (vanishAPI && VanishAPI.isInvisible(player)) {
-            VanishAPI.showPlayer(player);
-            disabled = true;
-        }
-
-        if (vanishNoPacket != null && vanishNoPacket.getManager().isVanished(player)) {
-            vanishNoPacket.getManager().toggleVanishQuiet(player, false);
-            disabled = true;
-        }
-
-        if (libsDisguises && DisguiseAPI.isSelfDisguised(player)) {
-            DisguiseAPI.undisguiseToAll(player);
-        }
-
         return disabled;
     }
 
@@ -78,7 +59,7 @@ public class PowerUpsManager {
     public void disablePowerUpsWithRunCommands(Player player) {
         if (disablePowerUps(player) && !configManager.getSettings().getCommandsOnPowerupsDisable().isEmpty()) {
             configManager.getSettings().getCommandsOnPowerupsDisable().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-                    Colorize.parse(command.replace("%player%", player.getName()))));
+                    StringColorize.parse(command.replace("%player%", player.getName()))));
             String message = configManager.getMessages().getPvpStartedWithPowerups();
             if (!message.isEmpty()) {
                 player.sendMessage(message);
@@ -88,11 +69,7 @@ public class PowerUpsManager {
 
     public void detectPlugins() {
         PluginManager pluginManager = Bukkit.getPluginManager();
-        this.vanishAPI = pluginManager.isPluginEnabled("SuperVanish") || pluginManager.isPluginEnabled("PremiumVanish");
-        this.vanishNoPacket = pluginManager.isPluginEnabled("VanishNoPacket") ? (VanishPlugin) pluginManager.getPlugin("VanishNoPacket")
-                : null;
         this.essentials = pluginManager.isPluginEnabled("Essentials") ? (Essentials) pluginManager.getPlugin("Essentials") : null;
-        this.libsDisguises = pluginManager.isPluginEnabled("LibsDisguises");
         this.cmi = pluginManager.isPluginEnabled("CMI");
     }
 
