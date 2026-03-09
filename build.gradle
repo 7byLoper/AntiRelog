@@ -1,6 +1,7 @@
 plugins {
     id 'java'
-    id 'com.gradleup.shadow' version '8.3.6'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'maven-publish'
 }
 
 group = 'ru.leymooo'
@@ -86,6 +87,14 @@ tasks.named('shadowJar') {
     mergeServiceFiles()
 
     relocate 'org.codemc.worldguardwrapper', "${project.group}.shade.worldguardwrapper"
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
 }
 
 tasks.named('jar') {
