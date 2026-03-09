@@ -1,0 +1,6 @@
+name: AntiRelog
+version: '${version}'
+main: ru.loper.antirelog.AntiRelog
+api-version: '1.21'
+depend: [SunCore]
+website: t.me/bySunDev

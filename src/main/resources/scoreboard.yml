@@ -1,0 +1,19 @@
+scoreboard:
+  title: '&x&E&5&8&3&2&C&lР&x&E&7&7&9&2&C&lе&x&E&A&6&E&2&B&lж&x&E&C&6&4&2&B&lи&x&E&F&5&9&2&A&lм &x&F&3&4&4&2&9&lP&x&F&6&3&A&2&9&lv&x&F&8&2&F&2&8&lP'
+  lines:
+    - ''
+    - '&x&F&F&B&4&0&0&l&n◢&f &fНе выходите'
+    - '&x&F&F&B&4&0&0&l◤&f &fиз игры &c{time} &fсекунд.'
+    - ''
+    - '&x&F&F&B&B&0&0С&x&F&F&B&A&0&0п&x&F&F&B&9&0&0и&x&F&F&B&8&0&0с&x&F&F&B&6&0&0о&x&F&F&B&5&0&0к &x&F&F&B&3&0&0п&x&F&F&B&2&0&0р&x&F&F&B&1&0&0о&x&F&F&A&F&0&0т&x&F&F&A&E&0&0и&x&F&F&A&D&0&0в&x&F&F&A&C&0&0н&x&F&F&A&B&0&0и&x&F&F&A&A&0&0к&x&F&F&A&8&0&0о&x&F&F&A&7&0&0в&x&F&F&A&6&0&0:'
+    - '{opponents}'
+    - ''
+    - '&x&E&6&A&3&0&AВ&x&F&F&B&0&0&0ы: &x&3&B&D&5&E&F{player} &7(&x&0&0&D&8&F&F{ping}⇆§7)'
+    - ''
+  removing_lines_if_no_opponents: []
+opponents:
+  max: 10
+
+  one: '&x&E&6&A&3&0&A&l▍&f {player}&7 (&x&0&0&D&8&F&F{time}⌚§7) &7{health}/20 &x&F&B&1&D&0&2❤'
+  next: '&x&E&6&A&3&0&A&l&n▍&f {player}&7 (&x&0&0&D&8&F&F{time}⌚§7) &7{health}/20 &x&F&B&1&D&0&2❤'
+  empty: " Пусто"

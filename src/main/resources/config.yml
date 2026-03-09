@@ -1,0 +1,85 @@
+# Настройки кулдаунов для предметов
+items-cooldowns:
+  GOLDEN_APPLE: 30
+  ENCHANTED_GOLDEN_APPLE: 60
+  ENDER_PEARL: 15
+  CHORUS_FRUIT: 7
+  FIREWORK_ROCKET: -1
+
+# Настройки кулдаунов для зелий
+potions-cooldowns:
+  HEAL: 10
+# Примеры:
+# INSTANT_HEAL: 10
+# STRENGTH: 30
+
+# Длительность пвп
+pvp-time: 30
+
+# Отключить ли возможность писать команды в пвп?
+disable-commands-in-pvp: true
+# Отключить ли возможность открывать эндер сундук в пвп?
+disable-ender-chest-in-pvp: true
+
+# Команды которые можно писать во время пвп
+# Команды писать без '/' (кол-во '/' - 1)
+# Плагин будет пытаться сам определить алисы для команд (msg,tell,m), но для некоторых команд возможно придется самому прописать алиасы
+commands-whitelist:
+  - msg
+  - tell
+  - board
+
+# Отменять ли взаимодействие с энтити, во время пвп
+cancel-interact-with-entities: false
+
+# Убивать ли игрока если он вышел во время пвп?
+kill-on-leave: true
+
+# Убивать ли игрока если его кикнули во время пвп?
+kill-on-kick: true
+
+# Выполнять ли команды, если игрока кикнули во время пвп?
+run-commands-on-kick: true
+
+# Какой текст должен быть впричине кика, чтобы его убило/выполнились команды. Если пусто, то будет убивать/выполняться команды всегда
+kick-messages: []
+
+# Какие команды запускать от консоли при выходе игрока во время пвп?
+# commands-on-leave:
+# - command1
+# - command2 %player%
+commands-on-leave: []
+
+# Отключать ли у игрока который ударил FLY, GM, GOD, VANISH?
+disable-powerups: true
+
+# Какие команды выполнять, если были отключены усиления у игрока
+# Данную настройку можно использовать например для того, чтобы наложить на игрока отрицательный эффект, если он начал пвп в ГМ/ФЛАЕ/и тд
+# commands-on-powerups-disable:
+# - command1 %player%
+# - effect give %player% weakness 10
+commands-on-powerups-disable: []
+
+# Отключать ли возможность телепортироваться во время пвп?
+disable-teleports-in-pvp: false
+
+# Игнорировать ли PVP deny во время пвп между игроками?
+ignore-worldguard: true
+
+# Включать ли игроку, который не участвует в пвп и удрарил другого игрока в pvp, pvp режим
+# Если два игрока дерутся на територии где PVP deny и их ударить, то у того кто ударил так-же включится PVP режим
+join-pvp-in-worldguard: false
+
+# В каких регионах не будет работать плагин
+# ignored-worldguard-regions:
+# - duels1
+# - region2
+ignored-worldguard-regions: []
+
+# Отключать ли активный ПВП режим когда игрок заходит в игнорируемый регион?
+disable-pvp-in-ignored-region: true
+
+# Миры в котором плагин не работает
+disabled-worlds:
+  - world1
+  - world2
