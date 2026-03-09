@@ -15,8 +15,8 @@ import ru.leymooo.antirelog.manager.PvPManager;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Board {
 
@@ -24,7 +24,6 @@ public class Board {
     private final @NonNull Player player;
     private final @NonNull TabPlayer tabPlayer;
     private final @NonNull ScoreboardManager scoreboardManager;
-
     private final @NonNull ScoreboardConfig scoreboardConfig;
     private final @NonNull OpponentsConfig opponentsConfig;
     private final @NonNull PvPManager pvpManager;
@@ -36,9 +35,9 @@ public class Board {
         this.tabPlayer = Objects.requireNonNull(TabAPI.getInstance().getPlayer(player.getUniqueId()));
 
         AntiRelog antirelog = AntiRelog.getPlugin(AntiRelog.class);
-        scoreboardConfig = antirelog.getConfigManager().getScoreboardConfig();
-        opponentsConfig = antirelog.getConfigManager().getOpponentsConfig();
-        pvpManager = antirelog.getPvpManager();
+        this.scoreboardConfig = antirelog.getConfigManager().getScoreboardConfig();
+        this.opponentsConfig = antirelog.getConfigManager().getOpponentsConfig();
+        this.pvpManager = antirelog.getPvpManager();
     }
 
     public void showScoreboard(final int time, @NonNull String startEnemy) {
@@ -46,7 +45,7 @@ public class Board {
             return;
         }
 
-        enemies.add(startEnemy);
+        addEnemy(startEnemy);
         final Scoreboard scoreboard = scoreboardManager.createScoreboard(
                 player.getName(), scoreboardConfig.title(), buildEnemies(time)
         );
@@ -59,10 +58,11 @@ public class Board {
                 scoreboardConfig.title(),
                 buildEnemies(time)
         );
-        try {
-            scoreboardManager.showScoreboard(tabPlayer, scoreboard);
-        } catch (Exception ignored) {
-        }
+        Optional.of(tabPlayer).ifPresent(tp -> {
+            try {
+                scoreboardManager.showScoreboard(tp, scoreboard);
+            } catch (Exception ignored) {}
+        });
     }
 
     public void resetScoreboard() {
@@ -72,6 +72,12 @@ public class Board {
 
     public void removeEnemy(@NonNull String name) {
         enemies.remove(name);
+    }
+
+    public void addEnemy(@NonNull String name) {
+        Optional.of(name)
+                .filter(n -> !n.trim().isEmpty())
+                .ifPresent(enemies::add);
     }
 
     public @NonNull List<String> buildEnemies(final int time) {
@@ -94,75 +100,37 @@ public class Board {
             }
 
             indexes.stream()
-                    .filter(index -> index >= 0 && index < lines.size())
-                    .sorted(Collections.reverseOrder())
+                    .filter(i -> i >= 0 && i < lines.size())
+                    .sorted(Comparator.reverseOrder())
                     .forEach(lines::remove);
             return lines;
         }
 
-        final List<String> enemiesList = getSortedEnemyList();
+        List<String> enemiesList = getSortedEnemyList();
         lines.remove(enemiesIndex);
         lines.addAll(enemiesIndex, enemiesList);
         return lines;
     }
 
-    public void addEnemy(@NonNull String name) {
-        if (name != null && !name.trim().isEmpty()) {
-            enemies.add(name);
-        }
-    }
-
     private @NonNull List<String> getSortedEnemyList() {
-        try {
-            final List<String> enemiesList = new ArrayList<>(this.enemies);
-            final List<String> enemiesLines = new ArrayList<>();
-            final String oneFormat = opponentsConfig.oneLine();
-            final String nextFormat = opponentsConfig.nextLine();
+        List<Player> activeEnemies = enemies.stream()
+                .map(Bukkit::getPlayer)
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparingInt(pvpManager::getTimeRemainingInPvP).reversed())
+                .toList();
 
-            enemiesList.removeIf(Objects::isNull);
+        return IntStream.range(0, activeEnemies.size())
+                .mapToObj(i -> {
+                    Player p = activeEnemies.get(i);
+                    String format = (activeEnemies.size() == 1 || i == activeEnemies.size() - 1)
+                            ? opponentsConfig.oneLine()
+                            : opponentsConfig.nextLine();
 
-            enemiesList.sort((name1, name2) -> {
-                Player p1 = Bukkit.getPlayer(name1);
-                Player p2 = Bukkit.getPlayer(name2);
-
-                if (p1 == null && p2 == null) {
-                    return 0;
-                }
-                if (p1 == null) {
-                    return 1;
-                }
-                if (p2 == null) {
-                    return -1;
-                }
-
-                int time1 = pvpManager.getTimeRemainingInPvP(p1);
-                int time2 = pvpManager.getTimeRemainingInPvP(p2);
-
-                return Integer.compare(time2, time1);
-            });
-
-            for (int i = 0; i < enemiesList.size(); i++) {
-                final String enemyName = enemiesList.get(i);
-                if (enemyName == null) {
-                    continue;
-                }
-
-                Player p = Bukkit.getPlayer(enemyName);
-                if (p == null) {
-                    continue;
-                }
-
-                enemiesLines.add(((enemiesList.size() == 1 || i == enemiesList.size() - 1) ? oneFormat : nextFormat)
-                        .replace("{player}", p.getName())
-                        .replace("{ping}", String.valueOf(p.getPing()))
-                        .replace("{health}", String.valueOf((int) p.getHealth()))
-                        .replace("{time}", String.valueOf(pvpManager.getTimeRemainingInPvP(p))));
-            }
-
-            return enemiesLines;
-        } catch (Exception e) {
-            Bukkit.getLogger().log(Level.SEVERE, "Error sort opponents list", e);
-            return List.of();
-        }
+                    return format.replace("{player}", p.getName())
+                            .replace("{ping}", String.valueOf(p.getPing()))
+                            .replace("{health}", String.valueOf((int) p.getHealth()))
+                            .replace("{time}", String.valueOf(pvpManager.getTimeRemainingInPvP(p)));
+                })
+                .toList();
     }
 }

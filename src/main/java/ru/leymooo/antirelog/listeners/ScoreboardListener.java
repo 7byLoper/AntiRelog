@@ -5,11 +5,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
-import ru.leymooo.antirelog.api.models.Board;
 import ru.leymooo.antirelog.boards.BoardManager;
 import ru.leymooo.antirelog.event.PvpStartedEvent;
 import ru.leymooo.antirelog.event.PvpStoppedEvent;
 import ru.leymooo.antirelog.event.PvpTimeUpdateEvent;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class ScoreboardListener implements Listener {
@@ -18,7 +19,7 @@ public class ScoreboardListener implements Listener {
 
     @EventHandler
     private void onStartPVP(PvpStartedEvent event) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
             String attackerName = event.getAttacker().getName();
             String defenderName = event.getDefender().getName();
             int pvpTime = event.getPvpTime();
@@ -28,38 +29,30 @@ public class ScoreboardListener implements Listener {
                     boardManager.show(event.getDefender(), attackerName, pvpTime);
                 }
                 case ATTACKER_IN_PVP -> {
-                    Board board = boardManager.getFrom(event.getAttacker());
-                    if (board != null) {
-                        board.addEnemy(defenderName);
-                    }
+                    Optional.ofNullable(boardManager.getFrom(event.getAttacker()))
+                            .ifPresent(board -> board.addEnemy(defenderName));
                     boardManager.show(event.getDefender(), attackerName, pvpTime);
                 }
                 case DEFENDER_IN_PVP -> {
-                    Board board = boardManager.getFrom(event.getDefender());
-                    if (board != null) {
-                        board.addEnemy(attackerName);
-                    }
+                    Optional.ofNullable(boardManager.getFrom(event.getDefender()))
+                            .ifPresent(board -> board.addEnemy(attackerName));
                     boardManager.show(event.getAttacker(), defenderName, pvpTime);
                 }
             }
-        });
+        }, 2L);
     }
 
     @EventHandler
     private void onPVP(PvpTimeUpdateEvent event) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            Board board = boardManager.getFrom(event.getPlayer());
-            if (board == null) {
-                return;
-            }
-
-            if (event.getDamagedPlayer() != null && !event.getPlayer().equals(event.getDamagedPlayer())) {
-                board.addEnemy(event.getDamagedPlayer().getName());
-            } else if (event.getDamagedBy() != null && !event.getPlayer().equals(event.getDamagedBy())) {
-                board.addEnemy(event.getDamagedBy().getName());
-            }
-
-            board.updateScoreboard(event.getNewTime());
+            Optional.ofNullable(boardManager.getFrom(event.getPlayer())).ifPresent(board -> {
+                if (event.getDamagedPlayer() != null && !event.getPlayer().equals(event.getDamagedPlayer())) {
+                    board.addEnemy(event.getDamagedPlayer().getName());
+                } else if (event.getDamagedBy() != null && !event.getPlayer().equals(event.getDamagedBy())) {
+                    board.addEnemy(event.getDamagedBy().getName());
+                }
+                board.updateScoreboard(event.getNewTime());
+            });
         });
     }
 
