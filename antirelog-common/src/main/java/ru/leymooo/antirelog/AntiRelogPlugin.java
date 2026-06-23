@@ -16,12 +16,13 @@ import ru.leymooo.antirelog.manager.PowerUpsManager;
 import ru.leymooo.antirelog.manager.PvPManager;
 import ru.leymooo.antirelog.placeholder.AntirelogPlaceholder;
 import ru.leymooo.antirelog.util.VersionUtils;
+import ru.leymooo.antirelog.version.VersionAdapter;
 import ru.leymooo.antirelog.wg.AntiExitFlag;
 
 import static ru.leymooo.antirelog.wg.AntiExitFlag.FACTORY;
 
 @Getter
-public class AntiRelog extends JavaPlugin {
+public abstract class AntiRelogPlugin extends JavaPlugin {
     private PvPManager pvpManager;
     private CooldownManager cooldownManager;
 
@@ -31,6 +32,7 @@ public class AntiRelog extends JavaPlugin {
 
     private PvpConfigManager configManager;
     private BoardManager scoreboardManager;
+    private VersionAdapter versionAdapter;
 
     @Override
     public void onLoad() {
@@ -42,13 +44,14 @@ public class AntiRelog extends JavaPlugin {
     @Override
     public void onEnable() {
         configManager = new PvpConfigManager(this);
+        versionAdapter = createVersionAdapter();
         cooldownManager = new CooldownManager(configManager);
         pvpManager = new PvPManager(configManager, this);
 
         detectPlugins();
 
         getServer().getPluginManager().registerEvents(new PvPListener(this, pvpManager, configManager), this);
-        getServer().getPluginManager().registerEvents(new CooldownListener(this, cooldownManager, pvpManager, configManager), this);
+        getServer().getPluginManager().registerEvents(new CooldownListener(this, cooldownManager, pvpManager, configManager, versionAdapter), this);
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new AntirelogPlaceholder(pvpManager).register();
@@ -77,6 +80,8 @@ public class AntiRelog extends JavaPlugin {
             pvpManager.onPluginDisable();
         }
     }
+
+    protected abstract VersionAdapter createVersionAdapter();
 
     private void detectPlugins() {
         if (Bukkit.getPluginManager().isPluginEnabled("WorldGuard")) {

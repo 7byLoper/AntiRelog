@@ -1,0 +1,45 @@
+plugins {
+    id 'java-library'
+    id 'com.gradleup.shadow'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release.set(17)
+}
+
+dependencies {
+    compileOnly project(':antirelog-common')
+    compileOnly 'com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT'
+
+    implementation project(path: ':antirelog-common', configuration: 'runtimeElements')
+}
+
+shadowJar {
+    archiveBaseName.set('AntiRelog')
+    archiveVersion.set(project.version.toString())
+    archiveClassifier.set('legacy')
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    dependencies {
+        exclude(dependency('com.destroystokyo.paper:paper-api'))
+        exclude(dependency('org.spigotmc:spigot-api'))
+        exclude(dependency('io.papermc.paper:paper-api'))
+    }
+}
+
+jar {
+    enabled = false
+}
+
+tasks.register('legacyJar') {
+    group = 'build'
+    dependsOn shadowJar
+}

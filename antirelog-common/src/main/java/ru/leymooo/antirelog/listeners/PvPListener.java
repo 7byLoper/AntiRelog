@@ -111,13 +111,14 @@ public class PvPListener implements Listener {
         }
 
         for (LivingEntity entity : event.getAffectedEntities()) {
-            if (event.getEntityType() != EntityType.PLAYER || shooter.equals(entity)) {
+            if (!(entity instanceof Player target) || shooter.equals(target)) {
                 continue;
             }
 
             for (PotionEffect ef : event.getPotion().getEffects()) {
                 if (ef.getType().equals(PotionEffectType.POISON)) {
-                    pvpManager.playerDamagedByPlayer(shooter, (Player) entity);
+                    pvpManager.playerDamagedByPlayer(shooter, target);
+                    break;
                 }
             }
         }
@@ -135,6 +136,10 @@ public class PvPListener implements Listener {
                 allowedTeleports.put(event.getPlayer(), new AtomicInteger(0));
                 return;
             }
+            if (event.getTo() == null) {
+                return;
+            }
+
             if (event.getFrom().getWorld() != event.getTo().getWorld()) {
                 event.setCancelled(true);
                 return;

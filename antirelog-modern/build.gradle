@@ -1,0 +1,44 @@
+plugins {
+    id 'java-library'
+    id 'com.gradleup.shadow'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release.set(21)
+}
+
+dependencies {
+    compileOnly project(':antirelog-common')
+    compileOnly 'io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT'
+
+    implementation project(path: ':antirelog-common', configuration: 'runtimeElements')
+}
+
+shadowJar {
+    archiveBaseName.set('AntiRelog')
+    archiveVersion.set(project.version.toString())
+    archiveClassifier.set('modern')
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    dependencies {
+        exclude(dependency('io.papermc.paper:paper-api'))
+        exclude(dependency('org.spigotmc:spigot-api'))
+    }
+}
+
+jar {
+    enabled = false
+}
+
+tasks.register('modernJar') {
+    group = 'build'
+    dependsOn shadowJar
+}

@@ -8,7 +8,7 @@ import me.neznamy.tab.api.scoreboard.Scoreboard;
 import me.neznamy.tab.api.scoreboard.ScoreboardManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import ru.leymooo.antirelog.AntiRelog;
+import ru.leymooo.antirelog.AntiRelogPlugin;
 import ru.leymooo.antirelog.api.config.OpponentsConfig;
 import ru.leymooo.antirelog.api.config.ScoreboardConfig;
 import ru.leymooo.antirelog.manager.PvPManager;
@@ -34,7 +34,7 @@ public class Board {
         this.player = player;
         this.tabPlayer = Objects.requireNonNull(TabAPI.getInstance().getPlayer(player.getUniqueId()));
 
-        AntiRelog antirelog = AntiRelog.getPlugin(AntiRelog.class);
+        AntiRelogPlugin antirelog = AntiRelogPlugin.getPlugin(AntiRelogPlugin.class);
         this.scoreboardConfig = antirelog.getConfigManager().getScoreboardConfig();
         this.opponentsConfig = antirelog.getConfigManager().getOpponentsConfig();
         this.pvpManager = antirelog.getPvpManager();
@@ -66,7 +66,7 @@ public class Board {
     }
 
     public void resetScoreboard() {
-        Bukkit.getScheduler().runTaskLater(AntiRelog.getPlugin(AntiRelog.class),
+        Bukkit.getScheduler().runTaskLater(AntiRelogPlugin.getPlugin(AntiRelogPlugin.class),
                 () -> scoreboardManager.resetScoreboard(tabPlayer), 10L);
     }
 

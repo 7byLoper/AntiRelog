@@ -3,7 +3,6 @@ package ru.leymooo.antirelog.listeners;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.ThrowableProjectile;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -23,8 +22,8 @@ import ru.leymooo.antirelog.event.PvpStartedEvent;
 import ru.leymooo.antirelog.event.PvpStoppedEvent;
 import ru.leymooo.antirelog.manager.CooldownManager;
 import ru.leymooo.antirelog.manager.PvPManager;
-import ru.leymooo.antirelog.util.PotionUtils;
 import ru.leymooo.antirelog.util.Utils;
+import ru.leymooo.antirelog.version.VersionAdapter;
 import ru.leymooo.antirelog.util.VersionUtils;
 
 import java.util.List;
@@ -34,11 +33,19 @@ public class CooldownListener implements Listener {
     private final CooldownManager cooldownManager;
     private final PvPManager pvpManager;
     private final PvpConfigManager configManager;
+    private final VersionAdapter versionAdapter;
 
-    public CooldownListener(Plugin plugin, CooldownManager cooldownManager, PvPManager pvpManager, PvpConfigManager configManager) {
+    public CooldownListener(
+            Plugin plugin,
+            CooldownManager cooldownManager,
+            PvPManager pvpManager,
+            PvpConfigManager configManager,
+            VersionAdapter versionAdapter
+    ) {
         this.cooldownManager = cooldownManager;
         this.pvpManager = pvpManager;
         this.configManager = configManager;
+        this.versionAdapter = versionAdapter;
 
         registerEntityResurrectEvent(plugin);
     }
@@ -135,7 +142,7 @@ public class CooldownListener implements Listener {
 
         boolean hasEffects = false;
 
-        List<PotionEffectType> potionEffects = PotionUtils.getPotionEffects(potionMeta);
+        List<PotionEffectType> potionEffects = versionAdapter.getPotionEffects(potionMeta);
         if (!potionEffects.isEmpty()) {
             for (PotionEffectType potionType : potionEffects) {
 
@@ -181,7 +188,8 @@ public class CooldownListener implements Listener {
             return;
         }
 
-        if (!(event.getEntity() instanceof ThrowableProjectile entity)) {
+        Material material = versionAdapter.getProjectileMaterial(event.getEntity());
+        if (material == null) {
             return;
         }
 
@@ -192,7 +200,7 @@ public class CooldownListener implements Listener {
         handleCooldown(
                 event,
                 player,
-                entity.getItem().getType(),
+                material,
                 configManager.getMessages().getItemCooldown(),
                 configManager.getMessages().getItemDisabledInPvp()
         );
@@ -207,7 +215,7 @@ public class CooldownListener implements Listener {
             return;
         }
 
-        List<PotionEffectType> potionEffects = PotionUtils.getPotionEffects(potionMeta);
+        List<PotionEffectType> potionEffects = versionAdapter.getPotionEffects(potionMeta);
         if (potionEffects.isEmpty()) {
             return;
         }
@@ -258,8 +266,9 @@ public class CooldownListener implements Listener {
                 material == Material.EGG ||
                 material == Material.ENDER_PEARL ||
                 material == Material.EXPERIENCE_BOTTLE ||
-                material == Material.TRIDENT ||
-                material == Material.FISHING_ROD;
+                material == Material.FISHING_ROD ||
+                "TRIDENT".equals(material.name()) ||
+                "WIND_CHARGE".equals(material.name());
     }
 
     @EventHandler

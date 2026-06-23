@@ -1,7 +1,5 @@
 package ru.leymooo.antirelog.manager;
 
-import com.Zrips.CMI.CMI;
-import com.Zrips.CMI.Containers.CMIUser;
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.User;
 import org.bukkit.Bukkit;
@@ -14,7 +12,6 @@ import ru.loper.suncore.api.colorize.StringColorize;
 public class PowerUpsManager {
     private final PvpConfigManager configManager;
 
-    private boolean cmi;
     private Essentials essentials;
 
     public PowerUpsManager(PvpConfigManager configManager) {
@@ -48,10 +45,6 @@ public class PowerUpsManager {
             disabled = true;
         }
 
-        if (checkCMI(player)) {
-            disabled = true;
-        }
-
         return disabled;
     }
 
@@ -70,9 +63,7 @@ public class PowerUpsManager {
     public void detectPlugins() {
         PluginManager pluginManager = Bukkit.getPluginManager();
         this.essentials = pluginManager.isPluginEnabled("Essentials") ? (Essentials) pluginManager.getPlugin("Essentials") : null;
-        this.cmi = pluginManager.isPluginEnabled("CMI");
     }
-
 
     private boolean checkEssentials(Player player) {
         boolean disabled = false;
@@ -92,23 +83,4 @@ public class PowerUpsManager {
         return disabled;
     }
 
-    private boolean checkCMI(Player player) {
-        boolean disabled = false;
-        if (cmi) {
-            CMIUser user = CMI.getInstance().getPlayerManager().getUser(player);
-            if (user != null) {
-                if (user.isGod()) {
-                    CMI.getInstance().getNMS().changeGodMode(player, false);
-                    user.setTgod(0);
-                    disabled = true;
-                }
-                if (user.isVanished()) {
-                    user.setVanished(false);
-                    disabled = true;
-                }
-            }
-        }
-
-        return disabled;
-    }
 }
