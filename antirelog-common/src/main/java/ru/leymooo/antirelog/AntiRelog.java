@@ -22,7 +22,7 @@ import ru.leymooo.antirelog.wg.AntiExitFlag;
 import static ru.leymooo.antirelog.wg.AntiExitFlag.FACTORY;
 
 @Getter
-public abstract class AntiRelogPlugin extends JavaPlugin {
+public class AntiRelog extends JavaPlugin {
     private PvPManager pvpManager;
     private CooldownManager cooldownManager;
 
@@ -81,7 +81,15 @@ public abstract class AntiRelogPlugin extends JavaPlugin {
         }
     }
 
-    protected abstract VersionAdapter createVersionAdapter();
+
+    private VersionAdapter createVersionAdapter() {
+        try {
+            Class<?> clazz = Class.forName("ru.leymooo.antirelog.version.VersionAdapterImpl");
+            return (VersionAdapter) clazz.getDeclaredConstructor().newInstance();
+        } catch (Exception exception) {
+            throw new IllegalStateException("Could not load AntiRelog version adapter", exception);
+        }
+    }
 
     private void detectPlugins() {
         if (Bukkit.getPluginManager().isPluginEnabled("WorldGuard")) {

@@ -7,7 +7,7 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.codemc.worldguardwrapper.WorldGuardWrapper;
 import org.codemc.worldguardwrapper.region.IWrappedRegion;
-import ru.leymooo.antirelog.AntiRelogPlugin;
+import ru.leymooo.antirelog.AntiRelog;
 import ru.leymooo.antirelog.config.PvpConfigManager;
 import ru.leymooo.antirelog.event.PvpPreStartEvent;
 import ru.leymooo.antirelog.event.PvpPreStartEvent.PvPStatus;
@@ -22,7 +22,7 @@ import java.util.*;
 public class PvPManager {
 
     private final PvpConfigManager configManager;
-    private final AntiRelogPlugin plugin;
+    private final AntiRelog plugin;
     private final Map<Player, Integer> pvpMap = new HashMap<>();
     private final Map<Player, Integer> silentPvpMap = new HashMap<>();
 
@@ -33,7 +33,7 @@ public class PvPManager {
 
     private final Set<String> whiteListedCommands = new HashSet<>();
 
-    public PvPManager(PvpConfigManager configManager, AntiRelogPlugin plugin) {
+    public PvPManager(PvpConfigManager configManager, AntiRelog plugin) {
         this.configManager = configManager;
         this.plugin = plugin;
         this.powerUpsManager = new PowerUpsManager(configManager);

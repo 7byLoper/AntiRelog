@@ -2,16 +2,16 @@ package ru.leymooo.antirelog.command;
 
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-import ru.leymooo.antirelog.AntiRelogPlugin;
+import ru.leymooo.antirelog.AntiRelog;
 import ru.leymooo.antirelog.command.subcommands.ReloadSubCommand;
 import ru.loper.suncore.api.command.executor.BaseCommandExecutor;
 import ru.loper.suncore.api.command.register.CommandRegister;
 
 @CommandRegister(name = "antirelog", permission = "antirelog.command.use")
 public class AntiRelogCommand extends BaseCommandExecutor {
-    private final AntiRelogPlugin plugin;
+    private final AntiRelog plugin;
 
-    public AntiRelogCommand(AntiRelogPlugin plugin) {
+    public AntiRelogCommand(AntiRelog plugin) {
         super(plugin);
         this.plugin = plugin;
     }
