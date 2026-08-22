@@ -12,13 +12,11 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.session.MoveType;
 import com.sk89q.worldguard.session.Session;
 import com.sk89q.worldguard.session.handler.Handler;
+import java.util.Set;
 import org.bukkit.entity.Player;
 import ru.leymooo.antirelog.config.PvpConfigManager;
 import ru.leymooo.antirelog.manager.PvPManager;
-import ru.leymooo.antirelog.util.Utils;
-
-import java.util.Set;
-
+import ru.leymooo.antirelog.util.MessageSender;
 
 public class AntiExitFlag extends Handler {
     public static final Factory FACTORY = new Factory();
@@ -51,7 +49,14 @@ public class AntiExitFlag extends Handler {
     }
 
     @Override
-    public boolean onCrossBoundary(LocalPlayer player, Location from, Location to, ApplicableRegionSet toSet, Set<ProtectedRegion> entered, Set<ProtectedRegion> exited, MoveType moveType) {
+    public boolean onCrossBoundary(
+            LocalPlayer player,
+            Location from,
+            Location to,
+            ApplicableRegionSet toSet,
+            Set<ProtectedRegion> entered,
+            Set<ProtectedRegion> exited,
+            MoveType moveType) {
         if (exited.isEmpty() || ANTI_EXIT_FLAG == null) {
             return true;
         }
@@ -65,9 +70,7 @@ public class AntiExitFlag extends Handler {
             StateFlag.State state = reg.getFlag(ANTI_EXIT_FLAG);
             if (state == StateFlag.State.ALLOW) {
                 String message = configManager.getMessages().getPvpCantExit();
-                if (!message.isEmpty()) {
-                    bukkitPlayer.sendMessage(Utils.color(message));
-                }
+                MessageSender.sendMessage(bukkitPlayer, message);
                 return false;
             }
         }

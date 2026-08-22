@@ -7,6 +7,7 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import ru.leymooo.antirelog.config.PvpConfigManager;
+import ru.leymooo.antirelog.util.MessageSender;
 import ru.loper.suncore.api.colorize.StringColorize;
 
 public class PowerUpsManager {
@@ -18,7 +19,6 @@ public class PowerUpsManager {
         this.configManager = configManager;
         detectPlugins();
     }
-
 
     public boolean disablePowerUps(Player player) {
         if (player.hasPermission("antirelog.bypass.checks")) {
@@ -48,21 +48,24 @@ public class PowerUpsManager {
         return disabled;
     }
 
-
     public void disablePowerUpsWithRunCommands(Player player) {
-        if (disablePowerUps(player) && !configManager.getSettings().getCommandsOnPowerupsDisable().isEmpty()) {
-            configManager.getSettings().getCommandsOnPowerupsDisable().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-                    StringColorize.parse(command.replace("%player%", player.getName()))));
+        if (disablePowerUps(player)
+                && !configManager.getSettings().getCommandsOnPowerupsDisable().isEmpty()) {
+            configManager
+                    .getSettings()
+                    .getCommandsOnPowerupsDisable()
+                    .forEach(command -> Bukkit.dispatchCommand(
+                            Bukkit.getConsoleSender(),
+                            StringColorize.parse(command.replace("%player%", player.getName()))));
             String message = configManager.getMessages().getPvpStartedWithPowerups();
-            if (!message.isEmpty()) {
-                player.sendMessage(message);
-            }
+            MessageSender.sendMessage(player, message);
         }
     }
 
     public void detectPlugins() {
         PluginManager pluginManager = Bukkit.getPluginManager();
-        this.essentials = pluginManager.isPluginEnabled("Essentials") ? (Essentials) pluginManager.getPlugin("Essentials") : null;
+        this.essentials =
+                pluginManager.isPluginEnabled("Essentials") ? (Essentials) pluginManager.getPlugin("Essentials") : null;
     }
 
     private boolean checkEssentials(Player player) {
@@ -82,5 +85,4 @@ public class PowerUpsManager {
 
         return disabled;
     }
-
 }

@@ -23,10 +23,13 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.38'
     compileOnly 'org.jetbrains:annotations:24.1.0'
 
-    compileOnly 'com.github.7byLoper.SunCore-recode:core:1.0.0-RELEASE'
+    compileOnly 'com.github.7byloper.suncore-recode:core:1.0.8-RELEASE'
+
     compileOnly 'me.clip:placeholderapi:2.11.6'
     compileOnly 'net.essentialsx:EssentialsX:2.21.1'
-    compileOnly 'com.github.NEZNAMY:TAB-API:5.4.0'
+
+    compileOnly 'com.github.NEZNAMY:TAB-API:6.0.0'
+
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.5'
     compileOnly 'com.sk89q.worldedit:worldedit-bukkit:7.2.17'
 

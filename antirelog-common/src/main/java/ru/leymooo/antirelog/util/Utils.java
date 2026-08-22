@@ -1,7 +1,6 @@
 package ru.leymooo.antirelog.util;
 
 import lombok.experimental.UtilityClass;
-import org.bukkit.ChatColor;
 
 @UtilityClass
 public class Utils {
@@ -40,12 +39,8 @@ public class Utils {
         return formatTimeUnit("секунд", "у", "ы", "", time);
     }
 
-    public static String color(String message) {
-        return ChatColor.translateAlternateColorCodes('&', message);
-    }
-
     public static String replaceTime(String message, long time) {
-        return message.replace("%time%", Long.toString(time)).replace("%formated-sec%",
-                formatTimeUnit("секунд", "у", "ы", "", time));
+        return message.replace("%time%", Long.toString(time))
+                .replace("%formated-sec%", formatTimeUnit("секунд", "у", "ы", "", time));
     }
 }

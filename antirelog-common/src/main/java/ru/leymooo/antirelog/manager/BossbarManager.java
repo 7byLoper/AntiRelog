@@ -1,5 +1,7 @@
 package ru.leymooo.antirelog.manager;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
@@ -9,9 +11,6 @@ import org.bukkit.entity.Player;
 import ru.leymooo.antirelog.config.PvpConfigManager;
 import ru.leymooo.antirelog.util.Utils;
 import ru.leymooo.antirelog.util.VersionUtils;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RequiredArgsConstructor
 public class BossbarManager {

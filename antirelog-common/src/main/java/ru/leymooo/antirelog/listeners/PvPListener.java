@@ -1,20 +1,31 @@
 package ru.leymooo.antirelog.listeners;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.*;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
@@ -23,12 +34,11 @@ import ru.leymooo.antirelog.config.Messages;
 import ru.leymooo.antirelog.config.PvpConfigManager;
 import ru.leymooo.antirelog.config.Settings;
 import ru.leymooo.antirelog.manager.PvPManager;
+import ru.leymooo.antirelog.util.DamageSourceCompat;
+import ru.leymooo.antirelog.util.MessageSender;
 import ru.leymooo.antirelog.util.Utils;
 import ru.leymooo.antirelog.util.VersionUtils;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import ru.loper.suncore.api.colorize.StringColorize;
 
 public class PvPListener implements Listener {
     private final PvPManager pvpManager;
@@ -38,17 +48,24 @@ public class PvPListener implements Listener {
 
     public PvPListener(Plugin plugin, PvPManager pvpManager, PvpConfigManager configManager) {
         this.pvpManager = pvpManager;
-        this.settings = configManager.getSettings();
-        this.messages = configManager.getMessages();
-        plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
-            allowedTeleports.values().forEach(ai -> ai.set(ai.get() + 1));
-            allowedTeleports.values().removeIf(ai -> ai.get() >= 5);
-        }, 1L, 1L);
+        settings = configManager.getSettings();
+        messages = configManager.getMessages();
+        plugin.getServer()
+                .getScheduler()
+                .runTaskTimer(
+                        plugin,
+                        () -> {
+                            allowedTeleports.values().forEach(AtomicInteger::incrementAndGet);
+                            allowedTeleports.values().removeIf(value -> value.get() >= 5);
+                        },
+                        1L,
+                        1L);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onOpen(InventoryOpenEvent event) {
-        if (event.getPlayer().getType() != EntityType.PLAYER || event.getInventory().getType() != InventoryType.ENDER_CHEST) {
+        if (event.getPlayer().getType() != EntityType.PLAYER
+                || event.getInventory().getType() != InventoryType.ENDER_CHEST) {
             return;
         }
 
@@ -58,7 +75,7 @@ public class PvPListener implements Listener {
         }
 
         event.setCancelled(true);
-        player.sendMessage(messages.getEnderChestBlocked());
+        MessageSender.sendMessage(player, messages.getEnderChestBlocked());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -74,34 +91,37 @@ public class PvPListener implements Listener {
         }
 
         event.setCancelled(true);
-        player.sendMessage(messages.getEnderChestBlocked());
+        MessageSender.sendMessage(player, messages.getEnderChestBlocked());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamageByEntity(EntityDamageByEntityEvent event) {
-        if (event.getEntity().getType() != EntityType.PLAYER) {
-            return;
+        if (event.getEntity() instanceof Player target) {
+            pvpManager.playerDamagedByPlayer(DamageSourceCompat.getDamager(event), target);
         }
-        Player target = (Player) event.getEntity();
-        Player damager = getDamager(event.getDamager());
-        pvpManager.playerDamagedByPlayer(damager, target);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onDamage(EntityDamageEvent event) {
+        if (!(event instanceof EntityDamageByEntityEvent) && event.getEntity() instanceof Player target) {
+            pvpManager.playerDamagedByPlayer(DamageSourceCompat.getDamager(event), target);
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onInteractWithEntity(PlayerInteractEntityEvent event) {
-        if (settings.isCancelInteractWithEntities() && pvpManager.isPvPModeEnabled() && pvpManager.isInPvP(event.getPlayer())) {
+        if (settings.isCancelInteractWithEntities()
+                && pvpManager.isPvPModeEnabled()
+                && pvpManager.isInPvP(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onCombust(EntityCombustByEntityEvent event) {
-        if (!(event.getEntity() instanceof Player target)) {
-            return;
+        if (event.getEntity() instanceof Player target) {
+            pvpManager.playerDamagedByPlayer(DamageSourceCompat.getDamager(event.getCombuster()), target);
         }
-
-        Player damager = getDamager(event.getCombuster());
-        pvpManager.playerDamagedByPlayer(damager, target);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -115,8 +135,8 @@ public class PvPListener implements Listener {
                 continue;
             }
 
-            for (PotionEffect ef : event.getPotion().getEffects()) {
-                if (ef.getType().equals(PotionEffectType.POISON)) {
+            for (PotionEffect effect : event.getPotion().getEffects()) {
+                if (effect.getType().equals(PotionEffectType.POISON)) {
                     pvpManager.playerDamagedByPlayer(shooter, target);
                     break;
                 }
@@ -126,46 +146,50 @@ public class PvPListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onTeleport(PlayerTeleportEvent event) {
+        if (!settings.isDisableTeleportsInPvp() || !pvpManager.isInPvP(event.getPlayer())) {
+            return;
+        }
 
-        if (settings.isDisableTeleportsInPvp() && pvpManager.isInPvP(event.getPlayer())) {
-            if (allowedTeleports.containsKey(event.getPlayer())) {
-                return;
-            }
+        if (allowedTeleports.containsKey(event.getPlayer())) {
+            return;
+        }
 
-            if ((VersionUtils.isVersion(9) && event.getCause() == TeleportCause.CHORUS_FRUIT) || event.getCause() == TeleportCause.ENDER_PEARL) {
-                allowedTeleports.put(event.getPlayer(), new AtomicInteger(0));
-                return;
-            }
-            if (event.getTo() == null) {
-                return;
-            }
+        if ((VersionUtils.isVersion(9) && event.getCause() == TeleportCause.CHORUS_FRUIT)
+                || event.getCause() == TeleportCause.ENDER_PEARL) {
+            allowedTeleports.put(event.getPlayer(), new AtomicInteger());
+            return;
+        }
 
-            if (event.getFrom().getWorld() != event.getTo().getWorld()) {
-                event.setCancelled(true);
-                return;
-            }
+        if (event.getTo() == null) {
+            return;
+        }
 
-            if (event.getFrom().distanceSquared(event.getTo()) > 100) {
-                event.setCancelled(true);
-            }
+        if (event.getFrom().getWorld() != event.getTo().getWorld()) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (event.getFrom().distanceSquared(event.getTo()) > 100) {
+            event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onCommand(PlayerCommandPreprocessEvent event) {
-        if (settings.isDisableCommandsInPvp() && pvpManager.isInPvP(event.getPlayer())) {
-            String command = event.getMessage().split(" ")[0].replaceFirst("/", "");
-            if (pvpManager.isCommandWhiteListed(command)) {
-                return;
-            }
-            event.setCancelled(true);
-            String message = Utils.color(messages.getCommandsDisabled());
-            if (!message.isEmpty()) {
-                event.getPlayer().sendMessage(Utils.replaceTime(message, pvpManager.getTimeRemainingInPvP(event.getPlayer())));
-            }
+        if (!settings.isDisableCommandsInPvp() || !pvpManager.isInPvP(event.getPlayer())) {
+            return;
         }
-    }
 
+        String command = event.getMessage().split(" ")[0].replaceFirst("/", "");
+        if (pvpManager.isCommandWhiteListed(command)) {
+            return;
+        }
+
+        event.setCancelled(true);
+        MessageSender.sendMessage(
+                event.getPlayer(),
+                Utils.replaceTime(messages.getCommandsDisabled(), pvpManager.getTimeRemainingInPvP(event.getPlayer())));
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onKick(PlayerKickEvent event) {
@@ -188,11 +212,37 @@ public class PvPListener implements Listener {
         }
 
         String reason = ChatColor.stripColor(event.getReason().toLowerCase());
-        for (String killReason : settings.getKickMessages()) {
-            if (reason.contains(killReason.toLowerCase())) {
-                kickedInPvp(player);
-                return;
+        settings.getKickMessages().stream()
+                .filter(killReason -> reason.contains(killReason.toLowerCase()))
+                .findFirst()
+                .ifPresent(ignored -> kickedInPvp(player));
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        allowedTeleports.remove(player);
+
+        if (pvpManager.isInPvP(player)) {
+            pvpManager.stopPvPSilent(player);
+            if (settings.isKillOnLeave()) {
+                sendLeavedInPvpMessage(player);
+                player.setHealth(0);
             }
+
+            runCommands(player);
+        }
+
+        if (pvpManager.isInSilentPvP(player)) {
+            pvpManager.stopPvPSilent(player);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onDeath(PlayerDeathEvent event) {
+        Player player = event.getEntity();
+        if (pvpManager.isInSilentPvP(player) || pvpManager.isInPvP(player)) {
+            pvpManager.stopPvPSilent(player);
         }
     }
 
@@ -201,67 +251,23 @@ public class PvPListener implements Listener {
             player.setHealth(0);
             sendLeavedInPvpMessage(player);
         }
+
         if (settings.isRunCommandsOnKick()) {
             runCommands(player);
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onQuit(PlayerQuitEvent event) {
-        allowedTeleports.remove(event.getPlayer());
-
-        if (pvpManager.isInPvP(event.getPlayer())) {
-            pvpManager.stopPvPSilent(event.getPlayer());
-            if (settings.isKillOnLeave()) {
-                sendLeavedInPvpMessage(event.getPlayer());
-                event.getPlayer().setHealth(0);
-            }
-            runCommands(event.getPlayer());
-        }
-
-        if (pvpManager.isInSilentPvP(event.getPlayer())) {
-            pvpManager.stopPvPSilent(event.getPlayer());
-        }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onDeath(PlayerDeathEvent event) {
-        if (pvpManager.isInSilentPvP(event.getEntity()) || pvpManager.isInPvP(event.getEntity())) {
-            pvpManager.stopPvPSilent(event.getEntity());
-        }
-    }
-
-    private void sendLeavedInPvpMessage(Player p) {
-        String message = Utils.color(messages.getPvpLeaved()).replace("%player%", p.getName());
+    private void sendLeavedInPvpMessage(Player player) {
+        String message = messages.getPvpLeaved().replace("%player%", player.getName());
         if (!message.isEmpty()) {
-            for (Player pl : Bukkit.getOnlinePlayers()) {
-                pl.sendMessage(message);
-            }
+            Bukkit.getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.sendMessage(message));
         }
     }
 
-    private void runCommands(Player leaved) {
-        if (!settings.getCommandsOnLeave().isEmpty()) {
-            settings.getCommandsOnLeave().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-                    Utils.color(command).replace("%player%", leaved.getName())));
-        }
-    }
-
-    private Player getDamager(Entity damager) {
-        if (damager instanceof Player) {
-            return (Player) damager;
-        } else if (damager instanceof Projectile proj) {
-            if (proj.getShooter() instanceof Player) {
-                return (Player) proj.getShooter();
-            }
-        } else if (damager instanceof TNTPrimed tntPrimed) {
-            return getDamager(tntPrimed.getSource());
-        } else if (VersionUtils.isVersion(9) && damager instanceof AreaEffectCloud aec) {
-            if (aec.getSource() instanceof Player) {
-                return (Player) aec.getSource();
-            }
-        }
-
-        return null;
+    private void runCommands(Player player) {
+        settings.getCommandsOnLeave()
+                .forEach(command -> Bukkit.dispatchCommand(
+                        Bukkit.getConsoleSender(),
+                        StringColorize.parse(command).replace("%player%", player.getName())));
     }
 }

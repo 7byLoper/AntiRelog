@@ -1,13 +1,12 @@
 package ru.leymooo.antirelog.api.models;
 
-import lombok.Data;
-import org.bukkit.Material;
-import org.bukkit.potion.PotionEffectType;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.Data;
+import org.bukkit.Material;
+import org.bukkit.potion.PotionEffectType;
 
 @Data
 public class PlayerCooldowns {

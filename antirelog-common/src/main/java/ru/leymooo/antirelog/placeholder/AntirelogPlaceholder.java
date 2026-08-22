@@ -1,18 +1,15 @@
 package ru.leymooo.antirelog.placeholder;
 
+import lombok.RequiredArgsConstructor;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.leymooo.antirelog.manager.PvPManager;
 
+@RequiredArgsConstructor
 public class AntirelogPlaceholder extends PlaceholderExpansion {
     private final PvPManager pvpManger;
-
-    public AntirelogPlaceholder(PvPManager pvpManger) {
-
-        this.pvpManger = pvpManger;
-    }
 
     @Override
     public @NotNull String getIdentifier() {

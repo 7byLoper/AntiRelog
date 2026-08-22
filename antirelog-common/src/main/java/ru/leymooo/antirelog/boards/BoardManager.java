@@ -1,67 +1,49 @@
 package ru.leymooo.antirelog.boards;
 
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import ru.leymooo.antirelog.api.models.Board;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class BoardManager {
+
     private final @NonNull Map<UUID, Board> map = new ConcurrentHashMap<>();
 
-    public void show(final Player player, final String startEnemy, final int time) {
-        if (map.containsKey(player.getUniqueId()) || player.hasPermission("antirelog.bypass")) {
+    public void show(@NonNull Player player, @NonNull String startEnemy, final int time) {
+        if (player.hasPermission("antirelog.bypass")) {
             return;
         }
 
-        final Board board = new Board(player);
-        map.put(player.getUniqueId(), board);
-        board.showScoreboard(time, startEnemy);
+        map.computeIfAbsent(player.getUniqueId(), ignored -> {
+            final Board board = new Board(player);
+            return board.showScoreboard(time, startEnemy) ? board : null;
+        });
     }
 
-    public @Nullable Board getFrom(final Player player) {
+    public @Nullable Board getFrom(@NonNull Player player) {
         return map.get(player.getUniqueId());
     }
 
-    public void reset(final Player player) {
-        final Board board = getFrom(player);
+    public void reset(@NonNull Player player) {
+        final Board board = map.remove(player.getUniqueId());
         if (board == null) {
             return;
         }
 
         board.resetScoreboard();
-        map.remove(player.getUniqueId());
     }
 
-    public void removeAll(final String name) {
-        final Collection<Board> boards = new ArrayList<>(map.values());
-        for (Board board : boards) {
-            if (board == null) {
-                continue;
-            }
-
-            board.removeEnemy(name);
-            try {
-                map.replace(board.getPlayer().getUniqueId(), board);
-            } catch (Exception ignored) {
-            }
-        }
+    public void removeAll(@NonNull String name) {
+        map.values().forEach(board -> board.removeEnemy(name));
     }
 
     public void resetAll() {
-        final Collection<Board> boards = new ArrayList<>(map.values());
-        for (Board board : boards) {
-            if (board == null) {
-                continue;
-            }
-
-            board.resetScoreboard();
-            map.remove(board.getPlayer().getUniqueId());
-        }
+        final List<Board> boards = List.copyOf(map.values());
+        map.clear();
+        boards.forEach(Board::resetScoreboard);
     }
 }

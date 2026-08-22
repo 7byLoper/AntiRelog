@@ -1,10 +1,39 @@
 # Настройки кулдаунов для предметов
-items-cooldowns:
-  GOLDEN_APPLE: 30
-  ENCHANTED_GOLDEN_APPLE: 60
-  ENDER_PEARL: 15
-  CHORUS_FRUIT: 7
-  FIREWORK_ROCKET: -1
+item-cooldowns:
+  golden-apple:
+    material: [ GOLDEN_APPLE ]
+    cooldown: 60
+    action_cooldown: [ EAT ]
+
+  ench-golden-apple:
+    material: [ ENCHANTED_GOLDEN_APPLE, CHORUS_FRUIT ]
+    cooldown: 120
+    action_cooldown: [ EAT ]
+
+  chorus:
+    material: [ CHORUS_FRUIT ]
+    cooldown: 10
+    action_cooldown: [ EAT ]
+
+  mobility:
+    material: [ ENDER_PEARL, WIND_CHARGE ]
+    cooldown: 10
+    action_cooldown: [ USE ]
+
+  mace:
+    material: [ MACE ]
+    cooldown: 5
+    action_cooldown: [ ATTACK ]
+
+  spears:
+    material: [ SPEAR ]
+    cooldown: 5
+    action_cooldown: [ ATTACK, USE ]
+
+  fireworks:
+    material: [ FIREWORK_ROCKET ]
+    cooldown: -1
+    action_cooldown: [ ALL ]
 
 # Настройки кулдаунов для зелий
 potions-cooldowns:
@@ -42,13 +71,13 @@ kill-on-kick: true
 run-commands-on-kick: true
 
 # Какой текст должен быть впричине кика, чтобы его убило/выполнились команды. Если пусто, то будет убивать/выполняться команды всегда
-kick-messages: []
+kick-messages: [ ]
 
 # Какие команды запускать от консоли при выходе игрока во время пвп?
 # commands-on-leave:
 # - command1
 # - command2 %player%
-commands-on-leave: []
+commands-on-leave: [ ]
 
 # Отключать ли у игрока который ударил FLY, GM, GOD, VANISH?
 disable-powerups: true
@@ -58,7 +87,7 @@ disable-powerups: true
 # commands-on-powerups-disable:
 # - command1 %player%
 # - effect give %player% weakness 10
-commands-on-powerups-disable: []
+commands-on-powerups-disable: [ ]
 
 # Отключать ли возможность телепортироваться во время пвп?
 disable-teleports-in-pvp: false
@@ -74,7 +103,7 @@ join-pvp-in-worldguard: false
 # ignored-worldguard-regions:
 # - duels1
 # - region2
-ignored-worldguard-regions: []
+ignored-worldguard-regions: [ ]
 
 # Отключать ли активный ПВП режим когда игрок заходит в игнорируемый регион?
 disable-pvp-in-ignored-region: true

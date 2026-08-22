@@ -14,7 +14,8 @@ public class EssentialsTeleportListener implements Listener {
 
     @EventHandler
     public void onPreTeleport(PreTeleportEvent event) {
-        if (settings.isDisableTeleportsInPvp() && pvpManager.isInPvP(event.getTeleportee().getBase())) {
+        if (settings.isDisableTeleportsInPvp()
+                && pvpManager.isInPvP(event.getTeleportee().getBase())) {
             event.setCancelled(true);
         }
     }

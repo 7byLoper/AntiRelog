@@ -41,14 +41,12 @@ public class PvpConfigManager extends ConfigManager {
         this.scoreboardConfig = new ScoreboardConfig(
                 StringColorize.parse(sc.getString("scoreboard.title", "")),
                 StringColorize.parse(sc.getStringList("scoreboard.lines")),
-                sc.getIntegerList("scoreboard.removingLinesIfNoEnemies")
-        );
+                sc.getIntegerList("scoreboard.removingLinesIfNoEnemies"));
 
         this.opponentsConfig = new OpponentsConfig(
                 sc.getInt("opponents.max", 10),
                 StringColorize.parse(sc.getString("opponents.one", "")),
                 StringColorize.parse(sc.getString("opponents.next", "")),
-                StringColorize.parse(sc.getString("opponents.empty", ""))
-        );
+                StringColorize.parse(sc.getString("opponents.empty", "")));
     }
 }

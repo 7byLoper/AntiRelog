@@ -1,5 +1,13 @@
 package ru.leymooo.antirelog.api.models;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.Getter;
 import lombok.NonNull;
 import me.neznamy.tab.api.TabAPI;
@@ -8,66 +16,85 @@ import me.neznamy.tab.api.scoreboard.Scoreboard;
 import me.neznamy.tab.api.scoreboard.ScoreboardManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 import ru.leymooo.antirelog.AntiRelog;
 import ru.leymooo.antirelog.api.config.OpponentsConfig;
 import ru.leymooo.antirelog.api.config.ScoreboardConfig;
 import ru.leymooo.antirelog.manager.PvPManager;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 public class Board {
+
+    private static final String OPPONENTS_PLACEHOLDER = "{opponents}";
 
     @Getter
     private final @NonNull Player player;
+
     private final @NonNull TabPlayer tabPlayer;
+
     private final @NonNull ScoreboardManager scoreboardManager;
     private final @NonNull ScoreboardConfig scoreboardConfig;
     private final @NonNull OpponentsConfig opponentsConfig;
+
     private final @NonNull PvPManager pvpManager;
     private final @NonNull Set<String> enemies = ConcurrentHashMap.newKeySet();
 
-    public Board(@NonNull Player player) {
-        this.scoreboardManager = Objects.requireNonNull(TabAPI.getInstance().getScoreboardManager());
-        this.player = player;
-        this.tabPlayer = Objects.requireNonNull(TabAPI.getInstance().getPlayer(player.getUniqueId()));
+    @Nullable
+    private volatile Scoreboard scoreboard;
 
-        AntiRelog antirelog = AntiRelog.getPlugin(AntiRelog.class);
-        this.scoreboardConfig = antirelog.getConfigManager().getScoreboardConfig();
-        this.opponentsConfig = antirelog.getConfigManager().getOpponentsConfig();
-        this.pvpManager = antirelog.getPvpManager();
+    public Board(@NonNull Player player) {
+        final AntiRelog antiRelog = AntiRelog.getPlugin(AntiRelog.class);
+        final TabAPI tabAPI = TabAPI.getInstance();
+
+        this.player = player;
+        this.tabPlayer = Objects.requireNonNull(tabAPI.getPlayer(player.getUniqueId()));
+        this.scoreboardManager = Objects.requireNonNull(tabAPI.getScoreboardManager());
+        this.scoreboardConfig = antiRelog.getConfigManager().getScoreboardConfig();
+        this.opponentsConfig = antiRelog.getConfigManager().getOpponentsConfig();
+        this.pvpManager = antiRelog.getPvpManager();
     }
 
-    public void showScoreboard(final int time, @NonNull String startEnemy) {
-        if (scoreboardManager.hasCustomScoreboard(tabPlayer)) {
-            return;
+    public boolean showScoreboard(final int time, @NonNull String startEnemy) {
+        if (scoreboard != null || scoreboardManager.hasCustomScoreboard(tabPlayer)) {
+            return false;
         }
 
         addEnemy(startEnemy);
-        final Scoreboard scoreboard = scoreboardManager.createScoreboard(
-                player.getName(), scoreboardConfig.title(), buildEnemies(time)
-        );
-        scoreboardManager.showScoreboard(tabPlayer, scoreboard);
+
+        final Scoreboard createdScoreboard =
+                scoreboardManager.createScoreboard(getScoreboardName(), scoreboardConfig.title(), buildEnemies(time));
+
+        scoreboardManager.showScoreboard(tabPlayer, createdScoreboard);
+        scoreboard = createdScoreboard;
+        return true;
     }
 
-    public void updateScoreboard(int time) {
-        final Scoreboard scoreboard = scoreboardManager.createScoreboard(
-                player.getName(),
-                scoreboardConfig.title(),
-                buildEnemies(time)
-        );
-        Optional.of(tabPlayer).ifPresent(tp -> {
-            try {
-                scoreboardManager.showScoreboard(tp, scoreboard);
-            } catch (Exception ignored) {}
-        });
+    public void updateScoreboard(final int time) {
+        final Scoreboard activeScoreboard = scoreboard;
+        if (activeScoreboard == null) {
+            return;
+        }
+
+        final String title = scoreboardConfig.title();
+        if (!activeScoreboard.getTitle().equals(title)) {
+            activeScoreboard.setTitle(title);
+        }
+
+        activeScoreboard.setLines(buildEnemies(time));
     }
 
     public void resetScoreboard() {
-        Bukkit.getScheduler().runTaskLater(AntiRelog.getPlugin(AntiRelog.class),
-                () -> scoreboardManager.resetScoreboard(tabPlayer), 10L);
+        final Scoreboard activeScoreboard = scoreboard;
+        if (activeScoreboard == null) {
+            return;
+        }
+
+        scoreboard = null;
+
+        if (scoreboardManager.hasCustomScoreboard(tabPlayer)) {
+            scoreboardManager.resetScoreboard(tabPlayer);
+        }
+
+        activeScoreboard.unregister();
     }
 
     public void removeEnemy(@NonNull String name) {
@@ -75,62 +102,88 @@ public class Board {
     }
 
     public void addEnemy(@NonNull String name) {
-        Optional.of(name)
-                .filter(n -> !n.trim().isEmpty())
-                .ifPresent(enemies::add);
+        if (name.isBlank()) {
+            return;
+        }
+
+        enemies.add(name);
     }
 
     public @NonNull List<String> buildEnemies(final int time) {
-        List<String> lines = scoreboardConfig.lines().stream()
-                .map(line -> line.replace("{time}", String.valueOf(time))
-                        .replace("{player}", player.getName())
-                        .replace("{ping}", String.valueOf(player.getPing())))
+        final List<String> lines = scoreboardConfig.lines().stream()
+                .map(line -> replacePlayerPlaceholders(line, time))
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        int enemiesIndex = lines.indexOf("{opponents}");
-        if (enemiesIndex == -1) {
+        final int opponentsIndex = lines.indexOf(OPPONENTS_PLACEHOLDER);
+        if (opponentsIndex < 0) {
             return lines;
         }
 
-        if (enemies.isEmpty()) {
-            List<Integer> indexes = scoreboardConfig.removingLinesIfNoOpponents();
-            if (indexes.isEmpty()) {
-                lines.set(enemiesIndex, opponentsConfig.empty());
-                return lines;
-            }
-
-            indexes.stream()
-                    .filter(i -> i >= 0 && i < lines.size())
-                    .sorted(Comparator.reverseOrder())
-                    .forEach(lines::remove);
+        final List<Player> activeEnemies = getActiveEnemies();
+        if (activeEnemies.isEmpty()) {
+            applyEmptyOpponents(lines, opponentsIndex);
             return lines;
         }
 
-        List<String> enemiesList = getSortedEnemyList();
-        lines.remove(enemiesIndex);
-        lines.addAll(enemiesIndex, enemiesList);
+        lines.remove(opponentsIndex);
+        lines.addAll(opponentsIndex, buildEnemyLines(activeEnemies));
         return lines;
     }
 
-    private @NonNull List<String> getSortedEnemyList() {
-        List<Player> activeEnemies = enemies.stream()
-                .map(Bukkit::getPlayer)
+    private void applyEmptyOpponents(@NonNull List<String> lines, final int opponentsIndex) {
+        final List<Integer> removingIndexes = scoreboardConfig.removingLinesIfNoOpponents();
+        if (removingIndexes.isEmpty()) {
+            lines.set(opponentsIndex, opponentsConfig.empty());
+            return;
+        }
+
+        removingIndexes.stream()
+                .filter(index -> index >= 0 && index < lines.size())
+                .distinct()
+                .sorted(Comparator.reverseOrder())
+                .forEach(index -> lines.remove(index.intValue()));
+
+        final int remainingPlaceholderIndex = lines.indexOf(OPPONENTS_PLACEHOLDER);
+        if (remainingPlaceholderIndex >= 0) {
+            lines.set(remainingPlaceholderIndex, opponentsConfig.empty());
+        }
+    }
+
+    private @NonNull List<Player> getActiveEnemies() {
+        return enemies.stream()
+                .map(Bukkit::getPlayerExact)
                 .filter(Objects::nonNull)
-                .sorted(Comparator.comparingInt(pvpManager::getTimeRemainingInPvP).reversed())
+                .filter(Player::isOnline)
+                .sorted(Comparator.comparingInt(pvpManager::getTimeRemainingInPvP)
+                        .reversed())
                 .toList();
+    }
 
+    private @NonNull List<String> buildEnemyLines(@NonNull List<Player> activeEnemies) {
         return IntStream.range(0, activeEnemies.size())
-                .mapToObj(i -> {
-                    Player p = activeEnemies.get(i);
-                    String format = (activeEnemies.size() == 1 || i == activeEnemies.size() - 1)
-                            ? opponentsConfig.oneLine()
-                            : opponentsConfig.nextLine();
-
-                    return format.replace("{player}", p.getName())
-                            .replace("{ping}", String.valueOf(p.getPing()))
-                            .replace("{health}", String.valueOf((int) p.getHealth()))
-                            .replace("{time}", String.valueOf(pvpManager.getTimeRemainingInPvP(p)));
-                })
+                .mapToObj(index ->
+                        replaceEnemyPlaceholders(getEnemyFormat(index, activeEnemies.size()), activeEnemies.get(index)))
                 .toList();
+    }
+
+    private @NonNull String getEnemyFormat(final int index, final int size) {
+        return size == 1 || index == size - 1 ? opponentsConfig.oneLine() : opponentsConfig.nextLine();
+    }
+
+    private @NonNull String replacePlayerPlaceholders(@NonNull String line, final int time) {
+        return line.replace("{time}", String.valueOf(time))
+                .replace("{player}", player.getName())
+                .replace("{ping}", String.valueOf(player.getPing()));
+    }
+
+    private @NonNull String replaceEnemyPlaceholders(@NonNull String line, @NonNull Player enemy) {
+        return line.replace("{player}", enemy.getName())
+                .replace("{ping}", String.valueOf(enemy.getPing()))
+                .replace("{health}", String.valueOf((int) enemy.getHealth()))
+                .replace("{time}", String.valueOf(pvpManager.getTimeRemainingInPvP(enemy)));
+    }
+
+    private @NonNull String getScoreboardName() {
+        return "antirelog-" + player.getUniqueId();
     }
 }

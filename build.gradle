@@ -13,6 +13,14 @@ subprojects {
     }
 }
 
+project(':antirelog-modern') {
+    plugins.withId('java') {
+        dependencies {
+            compileOnly('com.github.7byloper.suncore-recode:core:1.0.8-RELEASE')
+        }
+    }
+}
+
 tasks.register('legacyJar') {
     group = 'build'
     dependsOn ':antirelog-legacy:shadowJar'

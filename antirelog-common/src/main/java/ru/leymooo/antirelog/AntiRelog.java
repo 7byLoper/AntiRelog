@@ -1,5 +1,7 @@
 package ru.leymooo.antirelog;
 
+import static ru.leymooo.antirelog.wg.AntiExitFlag.FACTORY;
+
 import com.sk89q.worldguard.WorldGuard;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -18,8 +20,6 @@ import ru.leymooo.antirelog.placeholder.AntirelogPlaceholder;
 import ru.leymooo.antirelog.util.VersionUtils;
 import ru.leymooo.antirelog.version.VersionAdapter;
 import ru.leymooo.antirelog.wg.AntiExitFlag;
-
-import static ru.leymooo.antirelog.wg.AntiExitFlag.FACTORY;
 
 @Getter
 public class AntiRelog extends JavaPlugin {
@@ -45,13 +45,17 @@ public class AntiRelog extends JavaPlugin {
     public void onEnable() {
         configManager = new PvpConfigManager(this);
         versionAdapter = createVersionAdapter();
-        cooldownManager = new CooldownManager(configManager);
+        cooldownManager = new CooldownManager(configManager, versionAdapter);
         pvpManager = new PvPManager(configManager, this);
 
         detectPlugins();
 
         getServer().getPluginManager().registerEvents(new PvPListener(this, pvpManager, configManager), this);
-        getServer().getPluginManager().registerEvents(new CooldownListener(this, cooldownManager, pvpManager, configManager, versionAdapter), this);
+        getServer()
+                .getPluginManager()
+                .registerEvents(
+                        new CooldownListener(this, cooldownManager, pvpManager, configManager, versionAdapter), this);
+        versionAdapter.registerVersionListeners(this, cooldownManager, pvpManager, configManager);
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new AntirelogPlaceholder(pvpManager).register();
@@ -67,8 +71,7 @@ public class AntiRelog extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(new ScoreboardListener(this, scoreboardManager), this);
         }
 
-        new AntiRelogCommand(this)
-                .registerWrappers();
+        new AntiRelogCommand(this).registerWrappers();
     }
 
     @Override
@@ -81,10 +84,9 @@ public class AntiRelog extends JavaPlugin {
         }
     }
 
-
     private VersionAdapter createVersionAdapter() {
         try {
-            Class<?> clazz = Class.forName("ru.leymooo.antirelog.version.VersionAdapterImpl");
+            Class<?> clazz = Class.forName("ru.leymooo.antirelog.version.AntiRelogVersionAdapter");
             return (VersionAdapter) clazz.getDeclaredConstructor().newInstance();
         } catch (Exception exception) {
             throw new IllegalStateException("Could not load AntiRelog version adapter", exception);
@@ -94,13 +96,15 @@ public class AntiRelog extends JavaPlugin {
     private void detectPlugins() {
         if (Bukkit.getPluginManager().isPluginEnabled("WorldGuard")) {
             WorldGuardWrapper.getInstance().registerEvents(this);
-            Bukkit.getPluginManager().registerEvents(new WorldGuardListener(configManager.getSettings(), pvpManager), this);
+            Bukkit.getPluginManager()
+                    .registerEvents(new WorldGuardListener(configManager.getSettings(), pvpManager), this);
             worldguardEnabled = true;
         }
 
         try {
             Class.forName("net.ess3.api.events.teleport.PreTeleportEvent");
-            Bukkit.getPluginManager().registerEvents(new EssentialsTeleportListener(pvpManager, configManager.getSettings()), this);
+            Bukkit.getPluginManager()
+                    .registerEvents(new EssentialsTeleportListener(pvpManager, configManager.getSettings()), this);
         } catch (ClassNotFoundException ignore) {
         }
 

@@ -6,7 +6,6 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-
 @Getter
 public class PvpStoppedEvent extends Event {
     private static final HandlerList handlers = new HandlerList();

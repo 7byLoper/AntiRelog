@@ -1,9 +1,8 @@
 package ru.leymooo.antirelog.command;
 
-import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.NotNull;
 import ru.leymooo.antirelog.AntiRelog;
 import ru.leymooo.antirelog.command.subcommands.ReloadSubCommand;
+import ru.leymooo.antirelog.command.subcommands.StartSubCommand;
 import ru.loper.suncore.api.command.executor.BaseCommandExecutor;
 import ru.loper.suncore.api.command.register.CommandRegister;
 
@@ -24,10 +23,6 @@ public class AntiRelogCommand extends BaseCommandExecutor {
     @Override
     public void registerWrappers() {
         addSubCommand(new ReloadSubCommand(plugin.getConfigManager()));
-    }
-
-    @Override
-    public void handleNoArguments(@NotNull CommandSender commandSender) {
-
+        addSubCommand(new StartSubCommand(plugin.getPvpManager()));
     }
 }

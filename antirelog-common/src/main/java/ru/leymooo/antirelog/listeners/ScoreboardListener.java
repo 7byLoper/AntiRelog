@@ -1,5 +1,6 @@
 package ru.leymooo.antirelog.listeners;
 
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -10,8 +11,6 @@ import ru.leymooo.antirelog.event.PvpStartedEvent;
 import ru.leymooo.antirelog.event.PvpStoppedEvent;
 import ru.leymooo.antirelog.event.PvpTimeUpdateEvent;
 
-import java.util.Optional;
-
 @RequiredArgsConstructor
 public class ScoreboardListener implements Listener {
     private final Plugin plugin;
@@ -19,32 +18,38 @@ public class ScoreboardListener implements Listener {
 
     @EventHandler
     private void onStartPVP(PvpStartedEvent event) {
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            String attackerName = event.getAttacker().getName();
-            String defenderName = event.getDefender().getName();
-            int pvpTime = event.getPvpTime();
-            switch (event.getPvpStatus()) {
-                case ALL_NOT_IN_PVP -> {
-                    boardManager.show(event.getAttacker(), defenderName, pvpTime);
-                    boardManager.show(event.getDefender(), attackerName, pvpTime);
-                }
-                case ATTACKER_IN_PVP -> {
-                    Optional.ofNullable(boardManager.getFrom(event.getAttacker()))
-                            .ifPresent(board -> board.addEnemy(defenderName));
-                    boardManager.show(event.getDefender(), attackerName, pvpTime);
-                }
-                case DEFENDER_IN_PVP -> {
-                    Optional.ofNullable(boardManager.getFrom(event.getDefender()))
-                            .ifPresent(board -> board.addEnemy(attackerName));
-                    boardManager.show(event.getAttacker(), defenderName, pvpTime);
-                }
-            }
-        }, 2L);
+        Bukkit.getScheduler()
+                .runTaskLater(
+                        plugin,
+                        () -> {
+                            String attackerName = event.getAttacker().getName();
+                            String defenderName = event.getDefender().getName();
+                            int pvpTime = event.getPvpTime();
+                            switch (event.getPvpStatus()) {
+                                case ALL_NOT_IN_PVP -> {
+                                    boardManager.show(event.getAttacker(), defenderName, pvpTime);
+                                    boardManager.show(event.getDefender(), attackerName, pvpTime);
+                                }
+                                case ATTACKER_IN_PVP -> {
+                                    Optional.ofNullable(boardManager.getFrom(event.getAttacker()))
+                                            .ifPresent(board -> board.addEnemy(defenderName));
+                                    boardManager.show(event.getDefender(), attackerName, pvpTime);
+                                }
+                                case DEFENDER_IN_PVP -> {
+                                    Optional.ofNullable(boardManager.getFrom(event.getDefender()))
+                                            .ifPresent(board -> board.addEnemy(attackerName));
+                                    boardManager.show(event.getAttacker(), defenderName, pvpTime);
+                                }
+                            }
+                        },
+                        2L);
     }
 
     @EventHandler
     private void onPVP(PvpTimeUpdateEvent event) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        // PvpTimeUpdateEvent is asynchronous, but both Bukkit's Player API and
+        // TAB's scoreboard implementation must only be accessed from the server thread.
+        Bukkit.getScheduler().runTask(plugin, () -> {
             Optional.ofNullable(boardManager.getFrom(event.getPlayer())).ifPresent(board -> {
                 if (event.getDamagedPlayer() != null && !event.getPlayer().equals(event.getDamagedPlayer())) {
                     board.addEnemy(event.getDamagedPlayer().getName());
@@ -58,9 +63,7 @@ public class ScoreboardListener implements Listener {
 
     @EventHandler
     private void onStopPVP(PvpStoppedEvent event) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            boardManager.removeAll(event.getPlayer().getName());
-            boardManager.reset(event.getPlayer());
-        });
+        boardManager.removeAll(event.getPlayer().getName());
+        boardManager.reset(event.getPlayer());
     }
 }

@@ -1,11 +1,10 @@
 package ru.leymooo.antirelog.util;
 
+import java.lang.reflect.Field;
+import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
-
-import java.lang.reflect.Field;
-import java.util.logging.Level;
 
 public class CommandMapUtils {
 
@@ -30,5 +29,4 @@ public class CommandMapUtils {
         CommandMap map = getCommandMap();
         return map == null ? null : getCommandMap().getCommand(command);
     }
-
 }
