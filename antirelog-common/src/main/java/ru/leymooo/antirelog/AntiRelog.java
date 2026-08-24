@@ -13,6 +13,7 @@ import ru.leymooo.antirelog.config.PvpConfigManager;
 import ru.leymooo.antirelog.config.Settings;
 import ru.leymooo.antirelog.listeners.*;
 import ru.leymooo.antirelog.manager.BossbarManager;
+import ru.leymooo.antirelog.manager.CooldownActionbarManager;
 import ru.leymooo.antirelog.manager.CooldownManager;
 import ru.leymooo.antirelog.manager.PowerUpsManager;
 import ru.leymooo.antirelog.manager.PvPManager;
@@ -25,6 +26,7 @@ import ru.leymooo.antirelog.wg.AntiExitFlag;
 public class AntiRelog extends JavaPlugin {
     private PvPManager pvpManager;
     private CooldownManager cooldownManager;
+    private CooldownActionbarManager cooldownActionbarManager;
 
     private boolean protocolLibEnabled;
     private boolean worldguardEnabled;
@@ -66,16 +68,22 @@ public class AntiRelog extends JavaPlugin {
             WorldGuard.getInstance().getPlatform().getSessionManager().registerHandler(FACTORY, null);
         }
 
-        if (tabEnabled) {
+        if (tabEnabled && getSettings().isEnableScoreboard()) {
             scoreboardManager = new BoardManager();
             Bukkit.getPluginManager().registerEvents(new ScoreboardListener(this, scoreboardManager), this);
         }
+
+        cooldownActionbarManager = new CooldownActionbarManager(this, cooldownManager, configManager);
+        cooldownActionbarManager.start();
 
         new AntiRelogCommand(this).registerWrappers();
     }
 
     @Override
     public void onDisable() {
+        if (cooldownActionbarManager != null) {
+            cooldownActionbarManager.stop();
+        }
         if (scoreboardManager != null) {
             scoreboardManager.resetAll();
         }

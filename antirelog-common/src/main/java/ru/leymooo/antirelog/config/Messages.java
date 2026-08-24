@@ -28,6 +28,7 @@ public class Messages {
     private String enderChestBlocked;
     private String cooldownTitle;
     private String cooldownSubTitle;
+    private String itemCooldownActionbar;
 
     public void loadValues(CustomConfig config) {
         this.pvpStarted = config.configMessage("pvp-started", "&bВы начали &e&lPVP&b!");
@@ -69,5 +70,7 @@ public class Messages {
         this.enderChestBlocked = config.configMessage("ender-chest-blocked", "Эндер сундук запрещен в пвп");
         this.cooldownTitle = config.configMessage("cooldown-title", "");
         this.cooldownSubTitle = config.configMessage("cooldown-subtitle", "");
+        this.itemCooldownActionbar =
+                config.configMessage("item-cooldown-actionbar", "&e&lКД: &c&l%time% &e&l%formated-sec%");
     }
 }

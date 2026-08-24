@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -108,7 +109,7 @@ public class CooldownListener implements Listener {
             return;
         }
 
-        Material material = versionAdapter.getProjectileMaterial(event.getEntity());
+        Material material = getProjectileMaterial(player, event.getEntity());
         if (material == null || isSpear(material)) {
             return;
         }
@@ -211,8 +212,6 @@ public class CooldownListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPvpStart(PvpStartedEvent event) {
-        // Обновляем визуальный КТ у обоих участников. Игрок, который уже был
-        // в PvP, тоже мог получить новый map-cooldown между ударами.
         enterToPvp(event.getAttacker());
         enterToPvp(event.getDefender());
     }
@@ -414,9 +413,32 @@ public class CooldownListener implements Listener {
 
     private boolean isLaunchHandledMaterial(Material material) {
         return switch (material.name()) {
-            case "SNOWBALL", "EGG", "ENDER_PEARL", "EXPERIENCE_BOTTLE", "TRIDENT", "WIND_CHARGE" -> true;
+            case "BOW", "CROSSBOW", "SNOWBALL", "EGG", "ENDER_PEARL", "EXPERIENCE_BOTTLE", "TRIDENT", "WIND_CHARGE" -> true;
             default -> false;
         };
+    }
+
+    private Material getProjectileMaterial(Player player, Projectile projectile) {
+        Material projectileMaterial = versionAdapter.getProjectileMaterial(projectile);
+        if (hasUseCooldown(projectileMaterial)) {
+            return projectileMaterial;
+        }
+
+        Material mainHand = player.getInventory().getItemInMainHand().getType();
+        if (isRangedWeapon(mainHand)) {
+            return mainHand;
+        }
+
+        Material offHand = player.getInventory().getItemInOffHand().getType();
+        return isRangedWeapon(offHand) ? offHand : projectileMaterial;
+    }
+
+    private boolean hasUseCooldown(Material material) {
+        return material != null && !configManager.getSettings().getItemCooldownGroups(material, CooldownAction.USE).isEmpty();
+    }
+
+    private boolean isRangedWeapon(Material material) {
+        return (material == Material.BOW || material == Material.CROSSBOW) && hasUseCooldown(material);
     }
 
     private boolean isSpear(Material material) {

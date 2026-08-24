@@ -22,7 +22,7 @@ public class AntiRelogCommand extends BaseCommandExecutor {
 
     @Override
     public void registerWrappers() {
-        addSubCommand(new ReloadSubCommand(plugin.getConfigManager()));
+        addSubCommand(new ReloadSubCommand(plugin));
         addSubCommand(new StartSubCommand(plugin.getPvpManager()));
     }
 }

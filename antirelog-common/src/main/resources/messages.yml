@@ -1,4 +1,4 @@
-pvp-started: "&#FB0E01&l▶ &fВы вошли в режим &6PVP!"
+тоpvp-started: "&#FB0E01&l▶ &fВы вошли в режим &6PVP!"
 pvp-started-title: '&#F80D01ПВП'
 pvp-started-subtitle: '&fВы вошли в режим &#F98207PvP!'
 
@@ -15,6 +15,7 @@ commands-disabled: '&#FF0000▶ &fВы не можете использоват�
 
 item-cooldown: '&#FF0000▶ &fВы сможете использовать этот предмет через &#FF0000%time% %formated-sec%.'
 item-disabled-in-pvp: '&#FF0000▶ &fЗапрещено использовать &#FF0000данный предмет в PvP'
+item-cooldown-actionbar: '&#FF0000⌛ КД: &#FF0000%time% %formated-sec%'
 
 potion-cooldown: '&#FF0000▶ &fВам запрещено получать &#FF0000данный эффект&f еще &#FF0000%time% %formated-sec%.'
 potion-disabled-in-pvp: '&#FF0000▶ &fЗапрещено использовать &#FF0000данное зелье  в PvP'

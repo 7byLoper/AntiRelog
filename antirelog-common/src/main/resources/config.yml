@@ -15,8 +15,13 @@ item-cooldowns:
     cooldown: 10
     action_cooldown: [ EAT ]
 
-  mobility:
-    material: [ ENDER_PEARL, WIND_CHARGE ]
+  ender-pearl:
+    material: [ ENDER_PEARL ]
+    cooldown: 10
+    action_cooldown: [ USE ]
+
+  wind-charge:
+    material: [ WIND_CHARGE ]
     cooldown: 10
     action_cooldown: [ USE ]
 
@@ -29,6 +34,16 @@ item-cooldowns:
     material: [ SPEAR ]
     cooldown: 5
     action_cooldown: [ ATTACK, USE ]
+
+  bow:
+    material: [ BOW ]
+    cooldown: 5
+    action_cooldown: [ USE ]
+
+  crossbow:
+    material: [ CROSSBOW ]
+    cooldown: 5
+    action_cooldown: [ USE ]
 
   fireworks:
     material: [ FIREWORK_ROCKET ]
@@ -112,3 +127,13 @@ disable-pvp-in-ignored-region: true
 disabled-worlds:
   - world1
   - world2
+
+# Включить ли скорборд во время пвп? (требуется плагин TAB)
+enable-scoreboard: true
+
+# Отображение оставшегося кулдауна предмета в actionbar, пока предмет находится в руке
+item-cooldown-actionbar:
+  # Включить ли отображение?
+  enabled: false
+  # Как часто (в тиках) обновлять actionbar (20 тиков = 1 секунда)
+  update-ticks: 5

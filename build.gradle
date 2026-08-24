@@ -36,3 +36,8 @@ tasks.register('buildPlugins') {
     dependsOn legacyJar
     dependsOn modernJar
 }
+
+tasks.register('build') {
+    group = 'build'
+    dependsOn buildPlugins
+}

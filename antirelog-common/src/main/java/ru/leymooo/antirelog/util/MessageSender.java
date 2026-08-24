@@ -13,6 +13,14 @@ public class MessageSender {
         player.sendMessage(message);
     }
 
+    public void sendActionBar(Player player, String message) {
+        if (player == null || message == null || message.isEmpty()) {
+            return;
+        }
+
+        player.sendActionBar(message);
+    }
+
     public void sendTitle(Player player, String title, String subtitle) {
         if (player == null) {
             return;

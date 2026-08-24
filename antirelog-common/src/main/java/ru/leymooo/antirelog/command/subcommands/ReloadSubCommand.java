@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-import ru.leymooo.antirelog.config.PvpConfigManager;
+import ru.leymooo.antirelog.AntiRelog;
 import ru.loper.suncore.api.colorize.TextFormatter;
 import ru.loper.suncore.api.command.BuildableCommand;
 import ru.loper.suncore.api.command.register.SubCommandRegister;
@@ -13,13 +13,16 @@ import ru.loper.suncore.api.command.register.SubCommandRegister;
 @RequiredArgsConstructor
 @SubCommandRegister(permission = "antirelog.command.reload", aliases = "reload")
 public class ReloadSubCommand implements BuildableCommand {
-    private final PvpConfigManager configManager;
+    private final AntiRelog plugin;
 
     @Override
     public void handle(@NotNull CommandSender commandSender, @NotNull String[] strings) {
         long start = System.currentTimeMillis();
 
-        configManager.reloadAll();
+        plugin.getConfigManager().reloadAll();
+        if (plugin.getCooldownActionbarManager() != null) {
+            plugin.getCooldownActionbarManager().start();
+        }
         long totalMs = System.currentTimeMillis() - start;
         TextFormatter.send(
                 commandSender,

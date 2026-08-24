@@ -62,6 +62,11 @@ public class Settings {
     private List<String> disabledWorlds;
     private Set<String> disabledWorldsSet;
 
+    private boolean enableScoreboard;
+
+    private boolean itemCooldownActionbarEnabled;
+    private int itemCooldownActionbarUpdateTicks;
+
     public void loadValues(FileConfiguration config) {
         loadItemCooldownGroups(config);
         loadPotionCooldowns(config);
@@ -92,6 +97,11 @@ public class Settings {
         disabledWorldsSet = disabledWorlds.stream()
                 .map(value -> value.toLowerCase(Locale.ROOT))
                 .collect(Collectors.toSet());
+
+        enableScoreboard = config.getBoolean("enable-scoreboard", true);
+
+        itemCooldownActionbarEnabled = config.getBoolean("item-cooldown-actionbar.enabled", false);
+        itemCooldownActionbarUpdateTicks = Math.max(1, config.getInt("item-cooldown-actionbar.update-ticks", 5));
     }
 
     public List<ItemCooldownGroup> getItemCooldownGroups(Material material) {
