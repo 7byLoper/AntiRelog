@@ -1,31 +1,38 @@
-тоpvp-started: "&#FB0E01&l▶ &fВы вошли в режим &6PVP!"
-pvp-started-title: '&#F80D01ПВП'
-pvp-started-subtitle: '&fВы вошли в режим &#F98207PvP!'
+# Сообщения при начале PVP режима
+pvp-started: "&6АнтиРелог &7» &fВы вошли в PVP режим. За выход с сервера - &cсмерть&7."
+pvp-started-title: ""
+pvp-started-subtitle: ""
 
-pvp-stopped: "&#00D8FF▶ &fВы вышли из режима &#00D8FFPVP!"
-pvp-stopped-title: '&bПВП!'
-pvp-stopped-subtitle: '&fВы вышли из режима &bPVP!'
-pvp-stopped-actionbar: '&#00D8FF▶ PVP окончено&f, Вы снова можете использвать команды и выходить из игры!'
+# Сообщения при окончании PVP режима
+pvp-stopped: "&6АнтиРелог &7» &fPVP режим &aзакончился. &fМожно спокойно выходить"
+pvp-stopped-title: ""
+pvp-stopped-subtitle: ""
+pvp-stopped-actionbar: "&6АнтиРелог &7» &fPVP режим &aзакончился. &fМожно спокойно выходить"
 
-in-pvp-bossbar: '&#F9810CР&#F9720Be&#F9640Aж&#F85509и&#F84708м &#F82905P&#F71B04v&#F70C03P &f- &#F80D01%time% &fсекунд'
-in-pvp-actionbar: '&#F9810CР&#F9720Be&#F9640Aж&#F85509и&#F84708м &#F82905P&#F71B04v&#F70C03P&f, не выходите из игры &6%time% &fсекунд'
+# Отображение информации во время боя
+in-pvp-bossbar: "&7До окончания PVP режима &c%time% &7сек."
+in-pvp-actionbar: "&6АнтиРелог &7» &fНе выходите из игры &c%time% &fсек."
 
-pvp-leaved: '&#FF0000▶ &fИгрок &c%player% &fпокинул игру во время &#F98207ПВП и был наказан.'
-commands-disabled: '&#FF0000▶ &fВы не можете использовать команды в режиме &6PvP.'
+# Сообщения о выходе и блокировках
+pvp-leaved: "&6АнтиРелог &7» &fИгрок &c%player% &fпокинул игру во время &6PVP &fи был наказан."
+commands-disabled: "&6АнтиРелог &7» &cКоманды недоступны в PVP режиме"
+ender-chest-blocked: "&6АнтиРелог &7» &cВы не можете открыть эндер-сундук во время PvP режима!"
 
-item-cooldown: '&#FF0000▶ &fВы сможете использовать этот предмет через &#FF0000%time% %formated-sec%.'
-item-disabled-in-pvp: '&#FF0000▶ &fЗапрещено использовать &#FF0000данный предмет в PvP'
-item-cooldown-actionbar: '&#FF0000⌛ КД: &#FF0000%time% %formated-sec%'
+# Кулдауны и ограничения на предметы
+item-cooldown: "&6АнтиРелог &7» &fПредмет будет доступен через &6%time% %formated-sec%."
+item-disabled-in-pvp: "&6АнтиРелог &7» &cЗапрещено использовать данный предмет в PvP"
+item-cooldown-actionbar: "&#FF0000⌛ КД: &#FFA800%time% %formated-sec%"
 
-potion-cooldown: '&#FF0000▶ &fВам запрещено получать &#FF0000данный эффект&f еще &#FF0000%time% %formated-sec%.'
-potion-disabled-in-pvp: '&#FF0000▶ &fЗапрещено использовать &#FF0000данное зелье  в PvP'
-totem-cooldown: '&#FF0000▶ &fТотем небыл использован, т.к был недавно использован. Тотем будет доступен через &#FF0000%time% %formated-sec%.'
+# Кулдауны на зелья и тотемы
+potion-cooldown: "&6АнтиРелог &7» &cВам запрещено получать данный эффект еще &6%time% %formated-sec%."
+potion-disabled-in-pvp: "&6АнтиРелог &7» &cЗапрещено использовать данное зелье в PvP"
+totem-cooldown: "&6АнтиРелог &7» &cТотем не был использован, так как перезаряжается. Доступен через &6%time% %formated-sec%."
+totem-disabled-in-pvp: "&6АнтиРелог &7» &cТотем отключен в PvP режиме"
 
-totem-disabled-in-pvp: '&#FF0000▶ &fТотем небыл использован, т.к он отключен в &#FF0000PvP режиме'
-pvp-started-with-powerups: '&7Вы ударили игрока! Креатив был отключен.'
+# Дополнительные уведомления
+pvp-started-with-powerups: "&6АнтиРелог &7» &cУ вас были отключены активные привилегии (полет/режим игры)."
+pvp-cant-exit: "&6АнтиРелог &7» &cВы не можете покинуть эту зону во время PvP!"
+no-permissions: "&6АнтиРелог &7» &cУ вас недостаточно прав."
 
-no-permissions: 'У вас недостаточно прав'
-ender-chest-blocked: '&x&F&8&0&D&0&1▶ &fВы &x&F&8&0&D&0&1не можете&f открыть эндер-сундук во время &x&F&8&0&D&0&1PvP режима&f!'
-
-cooldown-title: ''
-cooldown-subtitle: ''
+cooldown-title: ""
+cooldown-subtitle: ""

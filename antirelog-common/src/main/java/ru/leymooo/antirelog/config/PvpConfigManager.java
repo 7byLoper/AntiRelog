@@ -47,6 +47,7 @@ public class PvpConfigManager extends ConfigManager {
                 sc.getInt("opponents.max", 10),
                 StringColorize.parse(sc.getString("opponents.one", "")),
                 StringColorize.parse(sc.getString("opponents.next", "")),
+                StringColorize.parse(sc.getString("opponents.end", sc.getString("opponents.one", ""))),
                 StringColorize.parse(sc.getString("opponents.empty", "")));
     }
 }

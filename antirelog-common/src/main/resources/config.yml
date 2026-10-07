@@ -2,22 +2,27 @@
 item-cooldowns:
   golden-apple:
     material: [ GOLDEN_APPLE ]
-    cooldown: 60
+    cooldown: 15
     action_cooldown: [ EAT ]
 
   ench-golden-apple:
-    material: [ ENCHANTED_GOLDEN_APPLE, CHORUS_FRUIT ]
-    cooldown: 120
+    material: [ ENCHANTED_GOLDEN_APPLE ]
+    cooldown: 20
     action_cooldown: [ EAT ]
 
   chorus:
     material: [ CHORUS_FRUIT ]
-    cooldown: 10
+    cooldown: 30
     action_cooldown: [ EAT ]
 
   ender-pearl:
     material: [ ENDER_PEARL ]
-    cooldown: 10
+    cooldown: 15
+    action_cooldown: [ USE ]
+
+  fireworks:
+    material: [ FIREWORK_ROCKET ]
+    cooldown: 5
     action_cooldown: [ USE ]
 
   wind-charge:
@@ -30,11 +35,6 @@ item-cooldowns:
     cooldown: 5
     action_cooldown: [ ATTACK ]
 
-  spears:
-    material: [ SPEAR ]
-    cooldown: 5
-    action_cooldown: [ ATTACK, USE ]
-
   bow:
     material: [ BOW ]
     cooldown: 5
@@ -45,95 +45,73 @@ item-cooldowns:
     cooldown: 5
     action_cooldown: [ USE ]
 
-  fireworks:
-    material: [ FIREWORK_ROCKET ]
-    cooldown: -1
-    action_cooldown: [ ALL ]
+  spears:
+    material: [ SPEAR ]
+    cooldown: 5
+    action_cooldown: [ ATTACK, USE ]
 
 # Настройки кулдаунов для зелий
-potions-cooldowns:
-  HEAL: 10
-# Примеры:
-# INSTANT_HEAL: 10
-# STRENGTH: 30
+potions-cooldowns: {}
 
-# Длительность пвп
+# Длительность PVP режима (в секундах)
 pvp-time: 30
 
-# Отключить ли возможность писать команды в пвп?
+# Блокировка команд во время PVP
 disable-commands-in-pvp: true
-# Отключить ли возможность открывать эндер сундук в пвп?
+
+# Разрешенные команды во время PVP (без '/')
+commands-whitelist:
+  - spec
+
+# Блокировка открытия эндер-сундука во время PVP
 disable-ender-chest-in-pvp: true
 
-# Команды которые можно писать во время пвп
-# Команды писать без '/' (кол-во '/' - 1)
-# Плагин будет пытаться сам определить алисы для команд (msg,tell,m), но для некоторых команд возможно придется самому прописать алиасы
-commands-whitelist:
-  - msg
-  - tell
-  - board
+# Блокировка телепортаций во время PVP
+disable-teleports-in-pvp: true
 
-# Отменять ли взаимодействие с энтити, во время пвп
+# Отменять ли взаимодействие с энтити во время PVP
 cancel-interact-with-entities: false
 
-# Убивать ли игрока если он вышел во время пвп?
+# Убивать ли игрока при выходе во время PVP
 kill-on-leave: true
 
-# Убивать ли игрока если его кикнули во время пвп?
+# Убивать ли игрока при кике во время PVP
 kill-on-kick: true
 
-# Выполнять ли команды, если игрока кикнули во время пвп?
+# Выполнять ли команды при кике во время PVP
 run-commands-on-kick: true
 
-# Какой текст должен быть впричине кика, чтобы его убило/выполнились команды. Если пусто, то будет убивать/выполняться команды всегда
-kick-messages: [ ]
+# Фильтр сообщений кика для применения наказания (пусто - для любых причин кика)
+kick-messages: []
 
-# Какие команды запускать от консоли при выходе игрока во время пвп?
-# commands-on-leave:
-# - command1
-# - command2 %player%
-commands-on-leave: [ ]
+# Команды от имени консоли при выходе игрока во время PVP
+commands-on-leave: []
 
-# Отключать ли у игрока который ударил FLY, GM, GOD, VANISH?
+# Отключать ли полет, креатив и бессмертие у игрока при входе в PVP
 disable-powerups: true
 
-# Какие команды выполнять, если были отключены усиления у игрока
-# Данную настройку можно использовать например для того, чтобы наложить на игрока отрицательный эффект, если он начал пвп в ГМ/ФЛАЕ/и тд
-# commands-on-powerups-disable:
-# - command1 %player%
-# - effect give %player% weakness 10
-commands-on-powerups-disable: [ ]
+# Команды при отключении усилений
+commands-on-powerups-disable: []
 
-# Отключать ли возможность телепортироваться во время пвп?
-disable-teleports-in-pvp: false
-
-# Игнорировать ли PVP deny во время пвп между игроками?
+# Игнорировать ли запрет PVP в WorldGuard во время боя
 ignore-worldguard: true
 
-# Включать ли игроку, который не участвует в пвп и удрарил другого игрока в pvp, pvp режим
-# Если два игрока дерутся на територии где PVP deny и их ударить, то у того кто ударил так-же включится PVP режим
+# Вступать ли в PVP при нанесении урона в зоне WorldGuard с pvp deny
 join-pvp-in-worldguard: false
 
-# В каких регионах не будет работать плагин
-# ignored-worldguard-regions:
-# - duels1
-# - region2
-ignored-worldguard-regions: [ ]
+# Список игнорируемых регионов WorldGuard
+ignored-worldguard-regions: []
 
-# Отключать ли активный ПВП режим когда игрок заходит в игнорируемый регион?
+# Отключать ли активный PVP режим при входе в игнорируемый регион
 disable-pvp-in-ignored-region: true
 
-# Миры в котором плагин не работает
-disabled-worlds:
-  - world1
-  - world2
+# Список миров, в которых плагин отключен
+disabled-worlds: []
 
-# Включить ли скорборд во время пвп? (требуется плагин TAB)
+# Включить ли отображение скорборда во время PVP (требуется плагин TAB)
 enable-scoreboard: true
 
-# Отображение оставшегося кулдауна предмета в actionbar, пока предмет находится в руке
+# Отображение оставшегося кулдауна предмета в actionbar при удержании в руке
 item-cooldown-actionbar:
-  # Включить ли отображение?
   enabled: false
-  # Как часто (в тиках) обновлять actionbar (20 тиков = 1 секунда)
   update-ticks: 5

@@ -70,7 +70,7 @@ public class AntiRelog extends JavaPlugin {
 
         if (tabEnabled && getSettings().isEnableScoreboard()) {
             scoreboardManager = new BoardManager();
-            Bukkit.getPluginManager().registerEvents(new ScoreboardListener(this, scoreboardManager), this);
+            Bukkit.getPluginManager().registerEvents(new ScoreboardListener(this, scoreboardManager, pvpManager), this);
         }
 
         cooldownActionbarManager = new CooldownActionbarManager(this, cooldownManager, configManager);

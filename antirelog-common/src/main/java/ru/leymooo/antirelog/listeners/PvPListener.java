@@ -260,7 +260,7 @@ public class PvPListener implements Listener {
     private void sendLeavedInPvpMessage(Player player) {
         String message = messages.getPvpLeaved().replace("%player%", player.getName());
         if (!message.isEmpty()) {
-            Bukkit.getOnlinePlayers().forEach(onlinePlayer -> onlinePlayer.sendMessage(message));
+            Bukkit.getOnlinePlayers().forEach(onlinePlayer -> MessageSender.sendMessage(onlinePlayer, message));
         }
     }
 

@@ -313,11 +313,11 @@ public class PvPManager {
             return;
         }
 
-        player.sendTitle(title, subtitle, 10, 30, 10);
+        MessageSender.sendTitle(player, title, subtitle);
     }
 
     private void sendActionBar(Player player, String message) {
-        player.sendActionBar(message);
+        MessageSender.sendActionBar(player, message);
     }
 
     public boolean isPvPModeEnabled() {

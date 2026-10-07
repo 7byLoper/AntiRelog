@@ -9,6 +9,7 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import ru.leymooo.antirelog.config.PvpConfigManager;
+import ru.leymooo.antirelog.util.MessageSender;
 import ru.leymooo.antirelog.util.Utils;
 import ru.leymooo.antirelog.util.VersionUtils;
 
@@ -35,7 +36,7 @@ public class BossbarManager {
         for (int i = 1; i <= configManager.getSettings().getPvpTime(); i++) {
             String actualTitle = Utils.replaceTime(title, i);
 
-            BossBar bar = Bukkit.createBossBar(actualTitle, BarColor.RED, BarStyle.SOLID);
+            BossBar bar = Bukkit.createBossBar(MessageSender.format(null, actualTitle), BarColor.RED, BarStyle.SOLID);
             bar.setProgress(progress);
             bossBars.put(i, bar);
 

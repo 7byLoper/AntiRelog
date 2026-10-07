@@ -22,6 +22,8 @@ import ru.leymooo.antirelog.api.config.OpponentsConfig;
 import ru.leymooo.antirelog.api.config.ScoreboardConfig;
 import ru.leymooo.antirelog.manager.PvPManager;
 
+import ru.leymooo.antirelog.util.MessageSender;
+
 public class Board {
 
     private static final String OPPONENTS_PLACEHOLDER = "{opponents}";
@@ -61,7 +63,7 @@ public class Board {
         addEnemy(startEnemy);
 
         final Scoreboard createdScoreboard =
-                scoreboardManager.createScoreboard(getScoreboardName(), scoreboardConfig.title(), buildEnemies(time));
+                scoreboardManager.createScoreboard(getScoreboardName(), formatTitle(), buildEnemies(time));
 
         scoreboardManager.showScoreboard(tabPlayer, createdScoreboard);
         scoreboard = createdScoreboard;
@@ -74,7 +76,7 @@ public class Board {
             return;
         }
 
-        final String title = scoreboardConfig.title();
+        final String title = formatTitle();
         if (!activeScoreboard.getTitle().equals(title)) {
             activeScoreboard.setTitle(title);
         }
@@ -90,11 +92,8 @@ public class Board {
 
         scoreboard = null;
 
-        if (scoreboardManager.hasCustomScoreboard(tabPlayer)) {
-            scoreboardManager.resetScoreboard(tabPlayer);
-        }
-
         activeScoreboard.unregister();
+        scoreboardManager.resetScoreboard(tabPlayer);
     }
 
     public void removeEnemy(@NonNull String name) {
@@ -133,7 +132,7 @@ public class Board {
     private void applyEmptyOpponents(@NonNull List<String> lines, final int opponentsIndex) {
         final List<Integer> removingIndexes = scoreboardConfig.removingLinesIfNoOpponents();
         if (removingIndexes.isEmpty()) {
-            lines.set(opponentsIndex, opponentsConfig.empty());
+            lines.set(opponentsIndex, MessageSender.format(player, opponentsConfig.empty()));
             return;
         }
 
@@ -145,7 +144,7 @@ public class Board {
 
         final int remainingPlaceholderIndex = lines.indexOf(OPPONENTS_PLACEHOLDER);
         if (remainingPlaceholderIndex >= 0) {
-            lines.set(remainingPlaceholderIndex, opponentsConfig.empty());
+            lines.set(remainingPlaceholderIndex, MessageSender.format(player, opponentsConfig.empty()));
         }
     }
 
@@ -167,20 +166,32 @@ public class Board {
     }
 
     private @NonNull String getEnemyFormat(final int index, final int size) {
-        return size == 1 || index == size - 1 ? opponentsConfig.oneLine() : opponentsConfig.nextLine();
+        if (size == 1) {
+            return opponentsConfig.oneLine();
+        }
+        if (index == size - 1) {
+            return opponentsConfig.endLine().isEmpty() ? opponentsConfig.oneLine() : opponentsConfig.endLine();
+        }
+        return opponentsConfig.nextLine();
     }
 
     private @NonNull String replacePlayerPlaceholders(@NonNull String line, final int time) {
-        return line.replace("{time}", String.valueOf(time))
+        String replaced = line.replace("{time}", String.valueOf(time))
                 .replace("{player}", player.getName())
                 .replace("{ping}", String.valueOf(player.getPing()));
+        return MessageSender.format(player, replaced);
     }
 
     private @NonNull String replaceEnemyPlaceholders(@NonNull String line, @NonNull Player enemy) {
-        return line.replace("{player}", enemy.getName())
+        String replaced = line.replace("{player}", enemy.getName())
                 .replace("{ping}", String.valueOf(enemy.getPing()))
                 .replace("{health}", String.valueOf((int) enemy.getHealth()))
                 .replace("{time}", String.valueOf(pvpManager.getTimeRemainingInPvP(enemy)));
+        return MessageSender.format(enemy, replaced);
+    }
+
+    private @NonNull String formatTitle() {
+        return MessageSender.format(player, scoreboardConfig.title());
     }
 
     private @NonNull String getScoreboardName() {

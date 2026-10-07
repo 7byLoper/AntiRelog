@@ -1,5 +1,6 @@
 package ru.leymooo.antirelog.listeners;
 
+import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -117,6 +118,11 @@ public class CooldownListener implements Listener {
         handleAction(event, player, material, CooldownAction.USE);
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onElytraBoost(PlayerElytraBoostEvent event) {
+        handleAction(event, event.getPlayer(), event.getItemStack().getType(), CooldownAction.USE);
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = false)
     public void onInteract(PlayerInteractEvent event) {
         if (!event.getAction().name().contains("RIGHT_CLICK")) {
@@ -139,6 +145,7 @@ public class CooldownListener implements Listener {
         }
 
         if (material.isEdible()
+                || (material == Material.FIREWORK_ROCKET && event.getPlayer().isGliding())
                 || isLaunchHandledMaterial(material)
                 || !registerAction(event.getPlayer(), material, CooldownAction.USE)) {
             return;
